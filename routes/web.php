@@ -18,6 +18,10 @@ Route::get('/loan-apply/{id}', [ApplyController::class, 'applyForm'])
 // Store loan application
 Route::post('/loan-apply/store', [ApplyController::class, 'store'])
     ->name('frontend.loan.apply.store');
+
+// Review submitted form before final submission
+Route::post('/loan-apply/review', [ApplyController::class, 'review'])
+    ->name('frontend.loan.apply.review');
 // Login
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -62,6 +66,9 @@ Route::get('/users', [RegistrationController::class, 'index'])->name('registrati
 
 Route::get('/loan-applications', [ApplyController::class, 'index'])
     ->name('loan.applications');
+Route::patch('/loan/{id}/status', [ApplyController::class, 'updateStatus'])
+     ->name('loan.updateStatus');
+
         // Loan Name
         Route::get('/loan-name', [LoanNameController::class, 'index'])->name('loan.name.index');
         Route::post('/loan-name/store', [LoanNameController::class, 'store'])->name('loan.name.store');

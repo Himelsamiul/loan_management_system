@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Apply;
 use App\Models\Registration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -47,14 +48,10 @@ class RegistrationController extends Controller
     {
         $user = Auth::user();
 
-        // Demo loan history (replace with real data later)
-        $loanHistory = [
-            ['id' => 1, 'loan_type' => 'Personal Loan', 'amount' => 50000, 'status' => 'Approved', 'date' => '2025-01-10'],
-            ['id' => 2, 'loan_type' => 'Car Loan', 'amount' => 200000, 'status' => 'Pending', 'date' => '2025-03-15'],
-            ['id' => 3, 'loan_type' => 'Education Loan', 'amount' => 100000, 'status' => 'Rejected', 'date' => '2025-05-20'],
-        ];
-
-        return view('frontend.pages.registration.view', compact('user', 'loanHistory'));
+        $applications = Apply::with(['loan_type', 'loan_name'])
+                             ->orderBy('created_at', 'desc')
+                             ->get();
+        return view('frontend.pages.registration.view', compact('user', 'applications'));
     }
 
     // Edit Profile of logged-in user

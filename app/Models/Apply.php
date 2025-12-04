@@ -22,11 +22,13 @@ class Apply extends Model
         'permanent_address',
         'present_address',
         'loan_amount',
+        'loan_duration',
         'document1',
         'document2',
         'document3',
         'document4',
-        'document5'
+        'document5',
+        'status',
     ];
 
 // Relationship with LoanType

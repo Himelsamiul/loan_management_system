@@ -14,7 +14,7 @@
 
     <hr>
 
-    <form action="{{ route('frontend.loan.apply.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('frontend.loan.apply.review') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <input type="hidden" name="loan_name_id" value="{{ $loan->id }}">
@@ -81,6 +81,10 @@
             <label class="form-label">Loan Amount (How much you want?) *</label>
             <input type="number" name="loan_amount" class="form-control" required>
         </div>
+<div class="col-md-6 mb-3">
+    <label class="form-label">Loan Duration (in months) *</label>
+    <input type="number" name="loan_duration" class="form-control" min="1" required>
+</div>
 
 
         <!-- ===================== ADDRESS INFORMATION ===================== -->

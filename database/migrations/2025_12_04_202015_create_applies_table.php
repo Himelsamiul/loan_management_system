@@ -26,7 +26,8 @@ return new class extends Migration
 
             // Loan Requested Amount
             $table->decimal('loan_amount', 15, 2);
-
+            $table->integer('loan_duration'); // in months
+$table->string('status')->default('pending');
             // Optional Documents
             $table->string('document1')->nullable();
             $table->string('document2')->nullable();
