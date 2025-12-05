@@ -22,37 +22,35 @@
                 <th>Duration (months)</th>
                 <th>Monthly Installment</th>
                 <th>Status</th>
+                <th>Action</th> <!-- New button -->
             </tr>
         </thead>
-
         <tbody>
-            @forelse($givenLoans as $key => $loan)
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $loan->name }}</td>
-                <td>{{ $loan->loan_type->loan_name ?? 'N/A' }}</td>
-                <td>{{ $loan->loan_name->loan_name ?? 'N/A' }}</td>
-                <td>{{ number_format($loan->loan_amount, 2) }}</td>
-
+            @foreach($givenLoans as $key => $loan)
                 @php
                     $interestRate = $loan->loan_name->interest ?? 0;
                     $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
                     $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
                 @endphp
-
-                <td>{{ $interestRate }}%</td>
-                <td>{{ number_format($totalAmount, 2) }}</td>
-                <td>{{ $loan->loan_duration }} months</td>
-                <td>{{ number_format($monthlyInstallment, 2) }}</td>
-                <td>
-                    <span class="badge bg-primary">Given</span>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="10" class="text-center text-muted">No given loans found.</td>
-            </tr>
-            @endforelse
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $loan->name }}</td>
+                    <td>{{ $loan->loan_type->loan_name ?? 'N/A' }}</td>
+                    <td>{{ $loan->loan_name->loan_name ?? 'N/A' }}</td>
+                    <td>{{ number_format($loan->loan_amount, 2) }}</td>
+                    <td>{{ $interestRate }}%</td>
+                    <td>{{ number_format($totalAmount, 2) }}</td>
+                    <td>{{ $loan->loan_duration }} months</td>
+                    <td>{{ number_format($monthlyInstallment, 2) }}</td>
+                    <td><span class="badge bg-primary">Given</span></td>
+                    <td>
+                        <!-- View Details button -->
+                        <a href="{{ route('admin.loan.details', $loan->id) }}" class="btn btn-sm btn-info">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
     </table>
 

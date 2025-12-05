@@ -23,6 +23,11 @@ Route::post('/loan-apply/store', [ApplyController::class, 'store'])
 // Review submitted form before final submission
 Route::post('/loan-apply/review', [ApplyController::class, 'review'])
     ->name('frontend.loan.apply.review');
+
+// web.php (frontend routes)
+Route::get('/loan/installments/{id}', [RegistrationController::class, 'viewInstallments'])
+    ->name('frontend.loan.installments');
+
 // Login
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
@@ -85,6 +90,9 @@ Route::post('/give-loan/{id}', [GiveLoanController::class, 'giveLoan'])
     ->name('loan.give');
 Route::get('/given-loans', [GiveLoanController::class, 'givenLoans'])
     ->name('loan.given');
+
+    Route::get('/loan/details/{id}', [GiveLoanController::class, 'loanDetails'])->name('loan.details');
+
     });
 
 });

@@ -37,6 +37,7 @@
                     <th>Monthly Installment</th>
                     <th>Status</th>
                     <th>Applied At</th>
+                    <th>Action</th> {{-- New column for installment --}}
                 </tr>
             </thead>
             <tbody>
@@ -72,10 +73,21 @@
                     </td>
 
                     <td>{{ $app->created_at->format('d M Y H:i') }}</td>
+
+                    <td>
+                        @if($app->status == 'loan_given')
+                            <a href="{{ route('frontend.loan.installments', $app->id) }}" class="btn btn-sm btn-info">
+                                View Installment History
+                            </a>
+                        @else
+                            <span class="text-muted">N/A</span>
+                        @endif
+                    </td>
+
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="11" class="text-center text-muted">No loan applications found.</td>
+                    <td colspan="12" class="text-center text-muted">No loan applications found.</td>
                 </tr>
                 @endforelse
             </tbody>

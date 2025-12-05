@@ -96,4 +96,30 @@ public function profile()
         Registration::findOrFail($id)->delete();
         return back()->with('success', 'User deleted successfully!');
     }
+
+
+    public function viewInstallments($id)
+{
+    $loan = Apply::with(['loan_type', 'loan_name'])
+                 ->where('user_id', Auth::id())
+                 ->findOrFail($id);
+
+    $interestRate = $loan->loan_name->interest ?? 0;
+    $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
+    $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
+
+    $installments = [];
+    $loanStart = $loan->updated_at; // When loan was given
+    for ($i = 0; $i < $loan->loan_duration; $i++) {
+        $dueDate = $loanStart->copy()->addMonths($i);
+        $installments[] = [
+            'month' => $i + 1,
+            'due_date' => $dueDate->format('d M Y'),
+            'amount' => number_format($monthlyInstallment, 2),
+        ];
+    }
+
+    return view('frontend.pages.registration.installments', compact('loan', 'installments', 'totalAmount'));
+}
+
 }
