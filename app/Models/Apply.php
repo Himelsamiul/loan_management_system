@@ -10,6 +10,7 @@ class Apply extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'loan_type_id',
         'loan_name_id',
         'name',
@@ -42,5 +43,10 @@ class Apply extends Model
     {
         return $this->belongsTo(LoanName::class, 'loan_name_id');
     }
+
+public function user()
+{
+    return $this->belongsTo(Registration::class, 'user_id');
+}
 
 }

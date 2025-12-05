@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\LoanType;
 use App\Models\LoanName;
 use App\Models\Apply;
+use Illuminate\Support\Facades\Auth;
 
 class ApplyController extends Controller
 {
@@ -88,7 +89,7 @@ class ApplyController extends Controller
 
         $data = $request->all();
         $data['status'] = 'pending';
-
+        $data['user_id'] = Auth::id();
         // Handle file uploads
         for ($i = 1; $i <= 5; $i++) {
             $fileKey = "document$i";

@@ -9,6 +9,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\LoginController;
 use App\Http\Controllers\Frontend\RegistrationController;
 use App\Http\Controllers\Frontend\ApplyController;
+use App\Http\Controllers\Backend\GiveLoanController;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/apply-show', [ApplyController::class, 'show'])->name('frontend.apply.show');
@@ -75,6 +76,15 @@ Route::patch('/loan/{id}/status', [ApplyController::class, 'updateStatus'])
         Route::get('/loan-name/{id}/edit', [LoanNameController::class, 'edit'])->name('loan.name.edit');
         Route::put('/loan-name/{id}', [LoanNameController::class, 'update'])->name('loan.name.update');
         Route::delete('/loan-name/{id}', [LoanNameController::class, 'destroy'])->name('loan.name.delete');
+
+        Route::get('/give-loan', [GiveLoanController::class, 'index'])
+    ->name('loan.approved');
+
+// Give loan action button
+Route::post('/give-loan/{id}', [GiveLoanController::class, 'giveLoan'])
+    ->name('loan.give');
+Route::get('/given-loans', [GiveLoanController::class, 'givenLoans'])
+    ->name('loan.given');
     });
 
 });

@@ -57,7 +57,7 @@
     @endphp
     {{ number_format($monthlyInstallment, 2) }}
 </td>
-
+    
                 <td>
                     @if($app->status == 'pending')
                         <span class="badge bg-warning">Pending</span>

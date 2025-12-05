@@ -54,9 +54,17 @@
         {{-- Reports --}}
         <li class="sidebar-list-item">
             <a class="sidebar-link d-flex align-items-center"
-               href="" onclick="setActiveLink(this)">
+               href="{{ route('admin.loan.approved') }}" onclick="setActiveLink(this)">
                 <i class="fas fa-chart-line me-3"></i>
-                <span class="sidebar-link-title">Reports</span>
+                <span class="sidebar-link-title">Loan Reports</span>
+            </a>
+        </li>
+        {{-- Reports --}}
+        <li class="sidebar-list-item">
+            <a class="sidebar-link d-flex align-items-center"
+               href="{{ route('admin.loan.given') }}" onclick="setActiveLink(this)">
+                <i class="fas fa-chart-line me-3"></i>
+                <span class="sidebar-link-title">Loan Given</span>
             </a>
         </li>
 

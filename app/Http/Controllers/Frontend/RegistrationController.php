@@ -43,16 +43,19 @@ class RegistrationController extends Controller
         return redirect()->route('login')->with('success', 'Registration Successful!');
     }
 
-    // Show Profile of logged-in user
-    public function profile()
-    {
-        $user = Auth::user();
+public function profile()
+{
+    $user = Auth::user();
 
-        $applications = Apply::with(['loan_type', 'loan_name'])
-                             ->orderBy('created_at', 'desc')
-                             ->get();
-        return view('frontend.pages.registration.view', compact('user', 'applications'));
-    }
+    // Fetch only applications submitted by this user
+    $applications = Apply::with(['loan_type', 'loan_name'])
+                          ->where('user_id', $user->id)
+                         ->orderBy('created_at', 'desc')
+                         ->get();
+ 
+    return view('frontend.pages.registration.view', compact('user', 'applications'));
+}
+
 
     // Edit Profile of logged-in user
     public function edit()
