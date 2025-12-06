@@ -57,10 +57,12 @@
                     <td>{{ number_format($ins['fine'], 2) }} BDT</td>
                     <td>{{ number_format($totalWithFine, 2) }} BDT</td>
                     <td>
-                        {{-- Pay Loan button (always visible for testing) --}}
+                        {{-- Pay Loan button --}}
                         <form action="" method="POST">
                             @csrf
                             <input type="hidden" name="installment_month" value="{{ $ins['month'] }}">
+                            <input type="hidden" name="installment_amount" value="{{ $ins['amount'] }}">
+                            <input type="hidden" name="fine_amount" value="{{ $ins['fine'] }}">
                             <button type="submit" class="btn btn-sm btn-success">Pay Loan</button>
                         </form>
                     </td>
