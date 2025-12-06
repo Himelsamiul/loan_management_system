@@ -98,7 +98,7 @@ public function profile()
     }
 
 
-    public function viewInstallments($id)
+public function viewInstallments($id)
 {
     $loan = Apply::with(['loan_type', 'loan_name'])
                  ->where('user_id', Auth::id())
@@ -109,17 +109,38 @@ public function profile()
     $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
 
     $installments = [];
-    $loanStart = $loan->updated_at; // When loan was given
+
+    // Installment starts next month after getting the loan
+    $loanStart = $loan->updated_at->copy()->addMonth();
+    $graceDays = 5; // Number of grace days
+
     for ($i = 0; $i < $loan->loan_duration; $i++) {
         $dueDate = $loanStart->copy()->addMonths($i);
+        $dueDateGrace = $dueDate->copy()->addDays($graceDays);
+
+        // Determine installment status
+        if (now()->lessThan($dueDate)) {
+            $status = 'Upcoming';
+        } elseif (now()->between($dueDate, $dueDateGrace)) {
+            $status = 'Grace Period';
+        } else {
+            $status = 'Late';
+        }
+
         $installments[] = [
-            'month' => $i + 1,
-            'due_date' => $dueDate->format('d M Y'),
-            'amount' => number_format($monthlyInstallment, 2),
+            'month'           => $i + 1,
+            'due_date'        => $dueDate->format('d M Y'),
+            'due_date_grace'  => $dueDateGrace->format('d M Y'),
+            'amount'          => number_format($monthlyInstallment, 2),
+            'status'          => $status,
+            'paid_date'       => null,      // Future use
+            'paid_amount'     => null,      // Future use
         ];
     }
 
     return view('frontend.pages.registration.installments', compact('loan', 'installments', 'totalAmount'));
 }
+
+
 
 }

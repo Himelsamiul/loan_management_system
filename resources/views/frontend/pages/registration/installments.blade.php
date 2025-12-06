@@ -14,9 +14,10 @@
             <tr>
                 <th>Month #</th>
                 <th>Due Date</th>
+                <th>Grace Date</th> {{-- New column --}}
                 <th>Installment Amount</th>
-                <th>Paid Amount</th> {{-- New column --}}
-                <th>Paid Date</th> {{-- New column --}}
+                <th>Paid Amount</th>
+                <th>Paid Date</th>
             </tr>
         </thead>
         <tbody>
@@ -24,9 +25,10 @@
             <tr>
                 <td>{{ $installment['month'] }}</td>
                 <td>{{ $installment['due_date'] }}</td>
+                <td>{{ $installment['due_date_grace'] ?? '-' }}</td> {{-- Grace Date --}}
                 <td>{{ $installment['amount'] }}</td>
-                <td>{{ $installment['paid_amount'] ?? '-' }}</td> {{-- Placeholder for future --}}
-                <td>{{ $installment['paid_date'] ?? '-' }}</td> {{-- Placeholder for future --}}
+                <td>{{ $installment['paid_amount'] ?? '-' }}</td>
+                <td>{{ $installment['paid_date'] ?? '-' }}</td>
             </tr>
             @endforeach
         </tbody>
