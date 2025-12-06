@@ -124,6 +124,7 @@ class ApplyController extends Controller
 
         $application = Apply::findOrFail($id);
         $application->status = $request->status;
+        $application->start_date_loan = now();
         $application->save();
 
         return redirect()->back()->with('success', 'Application status updated successfully.');

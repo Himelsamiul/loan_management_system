@@ -32,54 +32,68 @@ class GiveLoanController extends Controller
         $givenLoans = Apply::where('status', 'loan_given')->get();
         return view('backend.pages.loan.give-loans', compact('givenLoans'));
     }
+public function loanDetails($id)
+{
+    $loan = Apply::with(['loan_type', 'loan_name'])->findOrFail($id);
 
-    // Loan details with installments & fine
-    public function loanDetails($id)
-    {
-        $loan = Apply::with(['loan_type', 'loan_name'])->findOrFail($id);
+    $interestRate = $loan->loan_name->interest ?? 0;
+    $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
+    $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
 
-        $interestRate = $loan->loan_name->interest ?? 0;
-        $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
-        $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
+    // Ensure start date exists
+    $loanStart = $loan->start_date_loan ? \Carbon\Carbon::parse($loan->start_date_loan) : now();
 
-        $loanStart = $loan->updated_at; // Loan given date
-        $graceDays = 5;                  // Grace period in days
-        $finePercentPerDay = 2;          // 2% per day
-        $fineMaxDays = 10;               // Maximum 10 days fine
+    $graceDays = 5;           // Grace period in days
+    $finePercentPerDay = 2;   // 2% per day
+    $fineMaxDays = 10;        // Maximum 10 days fine
 
-        $installments = [];
+    $installments = [];
+    $loanDuration = $loan->loan_duration;
 
-        for ($i = 0; $i < $loan->loan_duration; $i++) {
-            $dueDate = $loanStart->copy()->addMonths($i + 1);
-            $dueDateGrace = $dueDate->copy()->addDays($graceDays);
+    for ($i = 0; $i < $loanDuration; $i++) {
 
-            $status = '';
-            $fine = 0;
+        $dueDate = $loanStart->copy()->addMonths($i + 1);
+        $dueDateGrace = $dueDate->copy()->addDays($graceDays);
 
-            if (now()->lessThan($dueDate)) {
-                $status = 'Upcoming';
-            } elseif (now()->between($dueDate, $dueDateGrace)) {
-                $status = 'Grace Period';
-            } else {
-                $status = 'Late';
-                // Calculate days late after grace
-                $lateDays = now()->diffInDays($dueDateGrace);
-                if ($lateDays > $fineMaxDays) {
-                    $lateDays = $fineMaxDays;
-                }
+        $today = now();
+        $status = '';
+        $fine = 0;
+        $lateDays = 0;
+        $fineStartDate = null;
+
+        if ($today->lt($dueDate)) {
+            $status = 'Upcoming';
+        } elseif ($today->between($dueDate, $dueDateGrace)) {
+            $status = 'Grace Period';
+        } else {
+            $status = 'Late';
+
+            // Only calculate late days if today is after grace period
+            if ($today->gt($dueDateGrace)) {
+                $lateDays = $dueDateGrace->diffInDays($today); // always positive
+                $lateDays = min($lateDays, $fineMaxDays);
+
                 $fine = ($monthlyInstallment * $finePercentPerDay / 100) * $lateDays;
-            }
 
-            $installments[] = [
-                'month'          => $i + 1,
-                'due_date'       => $dueDate->format('d M Y'),
-                'due_date_grace' => $dueDateGrace->format('d M Y'),
-                'amount'         => $monthlyInstallment,
-                'status'         => $status,
-                'fine'           => $fine,
-            ];
+                $fineStartDate = $dueDateGrace->copy()->addDay()->format('d M Y');
+            }
         }
 
-        return view('backend.pages.loan.loan-details', compact('loan', 'installments', 'totalAmount'));
+        $installments[] = [
+            'month'           => $i + 1,
+            'due_date'        => $dueDate->format('d M Y'),
+            'due_date_grace'  => $dueDateGrace->format('d M Y'),
+            'amount'          => round($monthlyInstallment, 2),
+            'status'          => $status,
+            'fine'            => round($fine, 2),
+            'late_days'       => $lateDays,
+            'fine_start_date' => $fineStartDate,
+        ];
     }
+
+    // return $installments;
+    return view('backend.pages.loan.loan-details', compact('loan', 'installments', 'totalAmount'));
+}
+
+
 }
