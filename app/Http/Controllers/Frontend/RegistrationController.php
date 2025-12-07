@@ -108,38 +108,59 @@ public function viewInstallments($id)
     $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
     $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
 
+    // Loan start date (backend logic = start_date_loan OR updated_at)
+    $loanStart = $loan->start_date_loan
+                    ? \Carbon\Carbon::parse($loan->start_date_loan)
+                    : $loan->updated_at;
+
+    $graceDays = 5;
+    $finePercentPerDay = 2;
+    $fineMaxDays = 10;
+
     $installments = [];
 
-    // Installment starts next month after getting the loan
-    $loanStart = $loan->updated_at->copy()->addMonth();
-    $graceDays = 5; // Number of grace days
-
     for ($i = 0; $i < $loan->loan_duration; $i++) {
-        $dueDate = $loanStart->copy()->addMonths($i);
+
+        $dueDate = $loanStart->copy()->addMonths($i + 1);
         $dueDateGrace = $dueDate->copy()->addDays($graceDays);
 
-        // Determine installment status
-        if (now()->lessThan($dueDate)) {
+        $today = now();
+        $status = '';
+        $fine = 0;
+        $lateDays = 0;
+        $fineStartDate = null;
+
+        if ($today->lt($dueDate)) {
             $status = 'Upcoming';
-        } elseif (now()->between($dueDate, $dueDateGrace)) {
+        } elseif ($today->between($dueDate, $dueDateGrace)) {
             $status = 'Grace Period';
         } else {
             $status = 'Late';
+
+            if ($today->gt($dueDateGrace)) {
+                $lateDays = min($dueDateGrace->diffInDays($today), $fineMaxDays);
+
+                $fine = ($monthlyInstallment * $finePercentPerDay / 100) * $lateDays;
+
+                $fineStartDate = $dueDateGrace->copy()->addDay()->format('d M Y');
+            }
         }
 
         $installments[] = [
             'month'           => $i + 1,
             'due_date'        => $dueDate->format('d M Y'),
             'due_date_grace'  => $dueDateGrace->format('d M Y'),
-            'amount'          => number_format($monthlyInstallment, 2),
+            'amount'          => round($monthlyInstallment, 2),
             'status'          => $status,
-            'paid_date'       => null,      // Future use
-            'paid_amount'     => null,      // Future use
+            'fine'            => round($fine, 2),
+            'late_days'       => $lateDays,
+            'fine_start_date' => $fineStartDate,
         ];
     }
 
     return view('frontend.pages.registration.installments', compact('loan', 'installments', 'totalAmount'));
 }
+
 
 
 

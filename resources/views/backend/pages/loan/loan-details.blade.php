@@ -34,11 +34,19 @@
             </tr>
         </thead>
         <tbody>
-            @php $grandTotal = 0; @endphp
+            @php
+                $grandTotal = 0;
+                $totalFine = 0;
+                $totalInstallments = 0;
+                $totalPaid = 0; // future use
+            @endphp
+
             @foreach($installments as $ins)
                 @php
                     $totalWithFine = $ins['amount'] + $ins['fine'];
                     $grandTotal += $totalWithFine;
+                    $totalFine += $ins['fine'];
+                    $totalInstallments += $ins['amount'];
                 @endphp
                 <tr>
                     <td>{{ $ins['month'] }}</td>
@@ -68,12 +76,36 @@
                     </td>
                 </tr>
             @endforeach
+
             <tr class="table-success">
-                <td colspan="6" class="text-end"><strong>Grand Total (All Installments + Fines)</strong></td>
+                <td colspan="6" class="text-end"><strong>Grand Total (With Fines)</strong></td>
                 <td colspan="2"><strong>{{ number_format($grandTotal, 2) }} BDT</strong></td>
             </tr>
         </tbody>
     </table>
+
+    {{-- ========================= --}}
+    {{--    FINAL SUMMARY BOX      --}}
+    {{-- ========================= --}}
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            <strong>Loan Summary</strong>
+        </div>
+        <div class="card-body">
+
+            <p><strong>Total Installment Amount:</strong> {{ number_format($totalInstallments, 2) }} BDT</p>
+            <p><strong>Total Fine:</strong> {{ number_format($totalFine, 2) }} BDT</p>
+            <p><strong>Total Payable (Installments + Fines):</strong> {{ number_format($grandTotal, 2) }} BDT</p>
+
+            {{-- Future paid calculation --}}
+            @php
+                $remaining = $grandTotal - $totalPaid;
+            @endphp
+
+            <p><strong>Total Paid Amount:</strong> {{ number_format($totalPaid, 2) }} BDT</p>
+            <p><strong>Total Remaining Amount:</strong> {{ number_format($remaining, 2) }} BDT</p>
+        </div>
+    </div>
 
     <a href="" class="btn btn-secondary mt-3">Back to Loan List</a>
 </div>
