@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -8,7 +7,10 @@
     <meta name="keywords" content="Loanday, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Loanday | Template</title>
+    <title>Ababil | Finance Limited</title>
+
+    <!-- Favicon / Title Image -->
+    <link rel="shortcut icon" href="{{ asset('m.png') }}" type="image/png">
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -26,25 +28,25 @@
 </head>
 
 @include('frontend.partials.header')
-    <!-- Header Section End -->
+<!-- Header Section End -->
 
-    @yield('content')
-    <!-- Contact End -->
+@yield('content')
+<!-- Contact End -->
 
-    <!-- Footer Section Begin -->
-    @include('frontend.partials.footer')
-    <!-- Search End -->
+<!-- Footer Section Begin -->
+@include('frontend.partials.footer')
+<!-- Search End -->
 
-    <!-- Js Plugins -->
-    <script src="https://themewagon.github.io/loanday/js/jquery-3.3.1.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/bootstrap.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/jquery.nice-select.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/jquery-ui.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/jquery.nicescroll.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/jquery.magnific-popup.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/jquery.slicknav.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/owl.carousel.min.js"></script>
-    <script src="https://themewagon.github.io/loanday/js/main.js"></script>
+<!-- Js Plugins -->
+<script src="https://themewagon.github.io/loanday/js/jquery-3.3.1.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/bootstrap.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/jquery.nice-select.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/jquery-ui.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/jquery.nicescroll.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/jquery.magnific-popup.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/jquery.slicknav.js"></script>
+<script src="https://themewagon.github.io/loanday/js/owl.carousel.min.js"></script>
+<script src="https://themewagon.github.io/loanday/js/main.js"></script>
 </body>
 
 </html>

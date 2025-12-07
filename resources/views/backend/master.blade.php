@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Favicon-->
-    <link rel="shortcut icon" href="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/img/favicon.png">
+    <link rel="shortcut icon" href="{{ asset('m.png') }}">
 
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.17/dist/sweetalert2.min.css" rel="stylesheet">

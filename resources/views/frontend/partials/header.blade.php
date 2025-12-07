@@ -55,12 +55,12 @@
         </nav>
 
         <div id="mobile-menu-wrap"></div>
-
-        <ul class="offcanvas__widget">
-            <li><i class="fa fa-map-marker"></i> 96 Ernser Vista Suite 437, NY, US</li>
-            <li><i class="fa fa-phone"></i> (123) 456-78-910</li>
-            <li><i class="fa fa-envelope"></i> Info@colorlib.com</li>
-        </ul>
+<ul class="header__top__widget">
+    <li><i class="fa fa-phone"></i> +880 1310-439446</li>
+    <li><i class="fa fa-map-marker"></i> Address: Mirpur -2, Dhaka</li>
+    <li><i class="fa fa-envelope"></i> sadiasultananisha380@gmail.com</li>
+</ul>
+        
     </div>
     <!-- Offcanvas Menu End -->
 
@@ -72,11 +72,12 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-9">
-                        <ul class="header__top__widget">
-                            <li><i class="fa fa-map-marker"></i> 96 Ernser Vista Suite 437, NY, US</li>
-                            <li><i class="fa fa-phone"></i> (123) 456-78-910</li>
-                            <li><i class="fa fa-envelope"></i> Info@colorlib.com</li>
-                        </ul>
+<ul class="header__top__widget">
+    <li><i class="fa fa-phone"></i> +880 1310-439446</li>
+    <li><i class="fa fa-map-marker"></i> Address: Mirpur -2, Dhaka</li>
+    <li><i class="fa fa-envelope"></i> sadiasultananisha380@gmail.com</li>
+</ul>
+
                     </div>
                 </div>
             </div>
