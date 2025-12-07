@@ -43,31 +43,47 @@ class RegistrationController extends Controller
         return redirect()->route('login')->with('success', 'Registration Successful!');
     }
 
-public function profile()
-{
-    $user = Auth::user();
+    // User Profile
+    public function profile()
+    {
+        $user = Auth::user();
 
-    // Fetch only applications submitted by this user
-    $applications = Apply::with(['loan_type', 'loan_name'])
-                          ->where('user_id', $user->id)
-                         ->orderBy('created_at', 'desc')
-                         ->get();
- 
-    return view('frontend.pages.registration.view', compact('user', 'applications'));
-}
+        $applications = Apply::with(['loan_type', 'loan_name'])
+                              ->where('user_id', $user->id)
+                              ->orderBy('created_at', 'desc')
+                              ->get();
 
+        // Attach a computed field 'status_label' for easier Blade handling
+        foreach($applications as $app){
+            if($app->status == 'loan_given' && $app->paid_installments >= $app->loan_duration){
+                $app->status_label = 'Closed';
+            } elseif($app->status == 'closed') {
+                $app->status_label = 'Closed';
+            } elseif($app->status == 'pending') {
+                $app->status_label = 'Pending';
+            } elseif($app->status == 'approved') {
+                $app->status_label = 'Approved';
+            } elseif($app->status == 'loan_given') {
+                $app->status_label = 'Given';
+            } else {
+                $app->status_label = 'Rejected';
+            }
+        }
 
-    // Edit Profile of logged-in user
+        return view('frontend.pages.registration.view', compact('user', 'applications'));
+    }
+
+    // Edit Profile
     public function edit()
     {
-        $user = Auth::user(); // Get currently logged-in user
+        $user = Auth::user();
         return view('frontend.pages.registration.edit', compact('user'));
     }
 
-    // Update Profile of logged-in user
+    // Update Profile
     public function update(Request $request)
     {
-        $user = Auth::user(); // Get currently logged-in user
+        $user = Auth::user();
 
         $request->validate([
             'name'          => 'required|string|max:255',
@@ -83,85 +99,63 @@ public function profile()
         return redirect()->route('profile.view')->with('success', 'Profile Updated Successfully!');
     }
 
-    // Backend: List Users
-    public function index()
+    // View Installments
+    public function viewInstallments($id)
     {
-        $users = Registration::latest()->get();
-        return view('backend.user.index', compact('users'));
-    }
+        $loan = Apply::with(['loan_type', 'loan_name'])
+                     ->where('user_id', Auth::id())
+                     ->findOrFail($id);
 
-    // Backend: Delete User
-    public function destroy($id)
-    {
-        Registration::findOrFail($id)->delete();
-        return back()->with('success', 'User deleted successfully!');
-    }
+        $interestRate = $loan->loan_name->interest ?? 0;
+        $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
+        $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
 
+        $loanStart = $loan->start_date_loan
+                        ? \Carbon\Carbon::parse($loan->start_date_loan)
+                        : $loan->updated_at;
 
-public function viewInstallments($id)
-{
-    $loan = Apply::with(['loan_type', 'loan_name'])
-                 ->where('user_id', Auth::id())
-                 ->findOrFail($id);
+        $graceDays = 5;
+        $finePercentPerDay = 2;
+        $fineMaxDays = 10;
 
-    $interestRate = $loan->loan_name->interest ?? 0;
-    $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
-    $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
+        $installments = [];
 
-    // Loan start date (backend logic = start_date_loan OR updated_at)
-    $loanStart = $loan->start_date_loan
-                    ? \Carbon\Carbon::parse($loan->start_date_loan)
-                    : $loan->updated_at;
+        for ($i = 0; $i < $loan->loan_duration; $i++) {
 
-    $graceDays = 5;
-    $finePercentPerDay = 2;
-    $fineMaxDays = 10;
+            $dueDate = $loanStart->copy()->addMonths($i + 1);
+            $dueDateGrace = $dueDate->copy()->addDays($graceDays);
 
-    $installments = [];
+            $today = now();
+            $status = '';
+            $fine = 0;
 
-    for ($i = 0; $i < $loan->loan_duration; $i++) {
-
-        $dueDate = $loanStart->copy()->addMonths($i + 1);
-        $dueDateGrace = $dueDate->copy()->addDays($graceDays);
-
-        $today = now();
-        $status = '';
-        $fine = 0;
-        $lateDays = 0;
-        $fineStartDate = null;
-
-        if ($today->lt($dueDate)) {
-            $status = 'Upcoming';
-        } elseif ($today->between($dueDate, $dueDateGrace)) {
-            $status = 'Grace Period';
-        } else {
-            $status = 'Late';
-
-            if ($today->gt($dueDateGrace)) {
+            if ($today->lt($dueDate)) {
+                $status = 'Upcoming';
+            } elseif ($today->between($dueDate, $dueDateGrace)) {
+                $status = 'Grace Period';
+            } else {
+                $status = 'Late';
                 $lateDays = min($dueDateGrace->diffInDays($today), $fineMaxDays);
-
                 $fine = ($monthlyInstallment * $finePercentPerDay / 100) * $lateDays;
-
-                $fineStartDate = $dueDateGrace->copy()->addDay()->format('d M Y');
             }
+
+            $isPaid = ($i + 1) <= $loan->paid_installments;
+            $paidAmount = $isPaid ? $monthlyInstallment + $fine : 0;
+            $paidDate = $isPaid ? $loan->updated_at->format('d M Y') : null;
+
+            $installments[] = [
+                'month'           => $i + 1,
+                'due_date'        => $dueDate->format('d M Y'),
+                'due_date_grace'  => $dueDateGrace->format('d M Y'),
+                'amount'          => round($monthlyInstallment, 2),
+                'status'          => $status,
+                'fine'            => round($fine, 2),
+                'paid_amount'     => round($paidAmount, 2),
+                'paid_date'       => $paidDate,
+            ];
         }
 
-        $installments[] = [
-            'month'           => $i + 1,
-            'due_date'        => $dueDate->format('d M Y'),
-            'due_date_grace'  => $dueDateGrace->format('d M Y'),
-            'amount'          => round($monthlyInstallment, 2),
-            'status'          => $status,
-            'fine'            => round($fine, 2),
-            'late_days'       => $lateDays,
-            'fine_start_date' => $fineStartDate,
-        ];
+        return view('frontend.pages.registration.installments', compact('loan', 'installments', 'totalAmount'));
     }
-
-    return view('frontend.pages.registration.installments', compact('loan', 'installments', 'totalAmount'));
-}
-
-
-
 
 }

@@ -58,17 +58,20 @@
                     {{ number_format($monthlyInstallment, 2) }}
                 </td>
 
-                <td>
-                    @if($app->status == 'pending')
-                    <span class="badge bg-warning">Pending</span>
-                    @elseif($app->status == 'approved')
-                    <span class="badge bg-success">Approved</span>
-                    @elseif($app->status == 'loan_given')
-                    <span class="badge bg-success">Given</span>
-                    @else
-                    <span class="badge bg-danger">Rejected</span>
-                    @endif
-                </td>
+<td>
+    @if($app->status=='pending')
+        <span class="badge bg-warning">Pending</span>
+    @elseif($app->status=='approved')
+        <span class="badge bg-info">Approved</span>
+    @elseif($app->status=='loan_given')
+        <span class="badge bg-primary">Ongoing</span>
+    @elseif($app->status=='closed')
+        <span class="badge bg-success">Closed</span>
+    @elseif($app->status=='rejected')
+        <span class="badge bg-danger">Rejected</span>
+    @endif
+</td>
+
                 <td>{{ $app->present_address }}</td>
                 <td>{{ $app->permanent_address }}</td>
                 <td>

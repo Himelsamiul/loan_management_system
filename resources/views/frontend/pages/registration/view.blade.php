@@ -37,7 +37,7 @@
                     <th>Monthly Installment</th>
                     <th>Status</th>
                     <th>Applied At</th>
-                    <th>Action</th> {{-- New column for installment --}}
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,13 +60,16 @@
                     <td>{{ $app->loan_duration }} months</td>
                     <td>{{ number_format($monthlyInstallment, 2) }}</td>
 
+                    {{-- Updated Status --}}
                     <td>
-                        @if($app->status == 'pending')
+                        @if($app->status_label == 'Pending')
                             <span class="badge bg-warning">Pending</span>
-                        @elseif($app->status == 'approved')
+                        @elseif($app->status_label == 'Approved')
                             <span class="badge bg-success">Approved</span>
-                        @elseif($app->status == 'loan_given')
+                        @elseif($app->status_label == 'Given')
                             <span class="badge bg-primary">Given</span>
+                        @elseif($app->status_label == 'Closed')
+                            <span class="badge bg-success">Closed</span>
                         @else
                             <span class="badge bg-danger">Rejected</span>
                         @endif
@@ -75,7 +78,7 @@
                     <td>{{ $app->created_at->format('d M Y H:i') }}</td>
 
                     <td>
-                        @if($app->status == 'loan_given')
+                        @if(in_array($app->status_label, ['Given', 'Closed']))
                             <a href="{{ route('frontend.loan.installments', $app->id) }}" class="btn btn-sm btn-info">
                                 View Installment History
                             </a>
