@@ -71,9 +71,18 @@
         {{-- Settings --}}
         <li class="sidebar-list-item">
             <a class="sidebar-link d-flex align-items-center"
-               href="" onclick="setActiveLink(this)">
+               href="{{ route('admin.employees.index') }}" onclick="setActiveLink(this)">
                 <i class="fas fa-cog me-3"></i>
-                <span class="sidebar-link-title">Settings</span>
+                <span class="sidebar-link-title">Employees</span>
+            </a>
+        </li>
+
+                {{-- roles --}}
+        <li class="sidebar-list-item">
+            <a class="sidebar-link d-flex align-items-center"
+               href="{{ route('admin.roles.index') }}" onclick="setActiveLink(this)">
+                <i class="fas fa-cog me-3"></i>
+                <span class="sidebar-link-title">Roles</span>
             </a>
         </li>
 

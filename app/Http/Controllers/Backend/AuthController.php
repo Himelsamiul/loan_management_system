@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Role;
 
 class AuthController extends Controller
 {
+    // Show login form
     public function showLoginForm()
     {
         return view('backend.auth.login');
     }
 
+    // Handle login
     public function login(Request $request)
     {
         $request->validate([
@@ -24,22 +27,41 @@ class AuthController extends Controller
         $email = trim($request->email);
         $pass  = (string)$request->password;
 
-        // Try to find user
-        $user = User::where('email', $email)->first();
-
-        if ($user && (
-            $user->password === $pass ||                     // plain text
-            Hash::check($pass, $user->password)             // hashed password
-        )) {
-            // Save user in session
-            session(['user' => $user]);
+        // 1️⃣ Check Role table (Employee login)
+        $role = Role::with('employee')->where('gmail', $email)->first();
+        if ($role && Hash::check($pass, $role->password)) {
+            session([
+                'user' => [
+                    'role_id'       => $role->id,
+                    'email'         => $role->gmail,
+                    'employee_id'   => $role->employee->id,
+                    'employee_name' => $role->employee->name,
+                    'designation'   => $role->employee->designation,
+                    'role_name'     => $role->employee->role
+                ]
+            ]);
             return redirect()->route('admin.dashboard');
         }
 
-        // Invalid login
+        // 2️⃣ Check Admin in User table (DB seed admin)
+        $user = User::where('email', $email)->first();
+        if ($user && Hash::check($pass, $user->password)) {
+            session([
+                'user' => [
+                    'id'       => $user->id,
+                    'name'     => $user->name,
+                    'email'    => $user->email,
+                    'role'     => 'Admin' // Admin role label
+                ]
+            ]);
+            return redirect()->route('admin.dashboard');
+        }
+
+        // 3️⃣ Invalid login
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
+    // Logout
     public function logout()
     {
         session()->forget('user');

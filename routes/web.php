@@ -10,7 +10,8 @@ use App\Http\Controllers\Frontend\LoginController;
 use App\Http\Controllers\Frontend\RegistrationController;
 use App\Http\Controllers\Frontend\ApplyController;
 use App\Http\Controllers\Backend\GiveLoanController;
-
+use App\Http\Controllers\Backend\EmployeeController;
+use App\Http\Controllers\Backend\RoleController;
 /*
 |--------------------------------------------------------------------------
 | Frontend Public Routes
@@ -80,7 +81,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/loan-type/edit/{id}', [LoanTypeController::class, 'edit'])->name('loan.type.edit');
         Route::put('/loan-type/update/{id}', [LoanTypeController::class, 'update'])->name('loan.type.update');
         Route::delete('/loan-type/delete/{id}', [LoanTypeController::class, 'destroy'])->name('loan.type.delete');
+        //employee management
+Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+Route::post('/employees/{employee}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('employees.toggleStatus');
 
+
+ Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
         // Loan Name
         Route::get('/loan-name', [LoanNameController::class, 'index'])->name('loan.name.index');
         Route::post('/loan-name/store', [LoanNameController::class, 'store'])->name('loan.name.store');
