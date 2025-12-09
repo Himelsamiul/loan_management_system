@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Apply;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LoanPaidMail;
 
 class GiveLoanController extends Controller
 {
@@ -139,21 +141,32 @@ public function givenLoans(Request $request)
 
     // Pay installment
     public function payInstallment(Request $request, $id)
-    {
-        $loan = Apply::findOrFail($id);
+{
+    $loan = Apply::with('loan_name')->findOrFail($id);
 
-        $loan->paid_installments +=1;
-        $loan->paid_amount += ($request->amount+$request->fine);
+    $loan->paid_installments += 1;
+    $loan->paid_amount += ($request->amount + $request->fine);
 
-        $interestRate = $loan->loan_name->interest ?? 0;
-        $totalAmount = $loan->loan_amount + ($loan->loan_amount*$interestRate/100);
+    $interestRate = $loan->loan_name->interest ?? 0;
+    $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
 
-        if($loan->paid_amount >= $totalAmount){
-            $loan->status = 'closed';
-        }
-
-        $loan->save();
-
-        return back()->with('success','Installment Paid Successfully!');
+    if ($loan->paid_amount >= $totalAmount) {
+        $loan->status = 'closed';
     }
+
+    $loan->save();
+
+    // ✅ Send email after payment
+    $installment = [
+        'month' => $request->month,
+        'amount' => $request->amount,
+        'fine' => $request->fine
+    ];
+
+    if($loan->email){ // make sure email exists
+        Mail::to($loan->email)->send(new LoanPaidMail($loan, $installment));
+    }
+
+    return back()->with('success','Installment Paid Successfully! Email sent.');
+}
 }
