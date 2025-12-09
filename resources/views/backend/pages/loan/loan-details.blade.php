@@ -115,19 +115,33 @@
         </tbody>
     </table>
 
-    {{-- Loan Summary --}}
-    <div class="card mt-4">
-        <div class="card-header bg-dark text-white">
-            <strong>Loan Summary</strong>
-        </div>
-        <div class="card-body">
-            <p><strong>Total Installment Amount:</strong> {{ number_format($totalInstallments, 2) }} BDT</p>
-            <p><strong>Total Fine:</strong> {{ number_format($totalFine, 2) }} BDT</p>
-            <p><strong>Total Payable (Installments + Fines):</strong> {{ number_format($grandTotal, 2) }} BDT</p>
-            <p><strong>Total Paid Amount:</strong> {{ number_format($totalPaid, 2) }} BDT</p>
-            <p><strong>Total Remaining Amount:</strong> {{ number_format($grandTotal - $totalPaid, 2) }} BDT</p>
-        </div>
+{{-- Loan Summary --}}
+<div class="card mt-4">
+    <div class="card-header bg-dark text-white">
+        <strong>Loan Summary</strong>
     </div>
+    <div class="card-body">
+        @php
+            // Total Interest
+            $interestAmount = $totalAmount - $loan->loan_amount;
+
+            // Total Paid Amount
+            $totalPaidAmount = $loan->paid_amount ?? 0;
+
+            // Total Profit = Interest Earned + Total Fine
+            $totalProfit = $interestAmount + $totalFine;
+        @endphp
+
+        <p><strong>Loan Amount:</strong> {{ number_format($loan->loan_amount, 2) }} BDT</p>
+        <p><strong>Total Interest:</strong> {{ number_format($interestAmount, 2) }} BDT</p>
+        <p><strong>Total Fine:</strong> {{ number_format($totalFine, 2) }} BDT</p>
+        <p><strong>Total Payable (Installments + Fines):</strong> {{ number_format($grandTotal, 2) }} BDT</p>
+        <p><strong>Total Paid Amount:</strong> {{ number_format($totalPaidAmount, 2) }} BDT</p>
+        <p><strong>Total Remaining Amount:</strong> {{ number_format($grandTotal - $totalPaidAmount, 2) }} BDT</p>
+        <p><strong>Total Profit (Interest + Fine):</strong> {{ number_format($totalProfit, 2) }} BDT</p>
+    </div>
+</div>
+
 
     <a href="{{ url()->previous() }}" class="btn btn-secondary mt-3">Back to Loan List</a>
 </div>

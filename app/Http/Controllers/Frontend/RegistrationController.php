@@ -157,5 +157,32 @@ class RegistrationController extends Controller
 
         return view('frontend.pages.registration.installments', compact('loan', 'installments', 'totalAmount'));
     }
+public function destroy($id)
+{
+    $user = Registration::findOrFail($id);
+    $user->delete();
+
+    return redirect()->back()->with('success', 'User deleted successfully!');
+}
+public function index(Request $request)
+{
+    $query = Registration::query();
+
+    if ($request->name) {
+        $query->where('name', 'LIKE', '%' . $request->name . '%');
+    }
+
+    if ($request->mobile) {
+        $query->where('mobile', 'LIKE', '%' . $request->mobile . '%');
+    }
+
+    if ($request->email) {
+        $query->where('email', 'LIKE', '%' . $request->email . '%');
+    }
+
+    $users = $query->orderBy('created_at', 'desc')->paginate(15);
+
+    return view('backend.user.index', compact('users'));
+}
 
 }

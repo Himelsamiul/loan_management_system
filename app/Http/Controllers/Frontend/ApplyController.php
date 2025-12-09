@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\LoanType;
 use App\Models\LoanName;
 use App\Models\Apply;
+use App\Models\Registration;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -102,11 +103,46 @@ class ApplyController extends Controller
     }
 
     // Backend: list all applications
-    public function index()
-    {
-        $applications = Apply::with(['loan_type','loan_name'])->orderBy('created_at','desc')->get();
-        return view('backend.pages.applylist.index', compact('applications'));
+public function index(Request $request)
+{
+    $query = Apply::with(['loan_type', 'loan_name', 'user']); // use snake_case
+
+    if ($request->loan_type_id) {
+        $query->where('loan_type_id', $request->loan_type_id);
     }
+
+    if ($request->loan_name_id) {
+        $query->where('loan_name_id', $request->loan_name_id);
+    }
+
+    if ($request->customer_id) {
+        $query->where('user_id', $request->customer_id); // filter by user_id
+    }
+
+    if ($request->mobile) {
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->where('mobile', 'LIKE', '%' . $request->mobile . '%');
+        });
+    }
+
+    if ($request->status) {
+        $query->where('status', $request->status);
+    }
+
+    $applications = $query->paginate(15);
+
+    $loanTypes = LoanType::all();
+    $loanNames = LoanName::all();
+    $customers = Registration::all(); // all registered users for dropdown
+
+    return view('backend.pages.applylist.index', compact(
+        'applications', 
+        'loanTypes', 
+        'loanNames', 
+        'customers'
+    ));
+}
+
 
     // Backend: Approve/Reject application
     public function updateStatus(Request $request, $id)

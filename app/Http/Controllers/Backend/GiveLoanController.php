@@ -10,11 +10,36 @@ use Carbon\Carbon;
 class GiveLoanController extends Controller
 {
     // List approved loans
-    public function index()
-    {
-        $approvedLoans = Apply::where('status','approved')->get();
-        return view('backend.pages.loan.give-loan', compact('approvedLoans'));
+public function index(Request $request)
+{
+    $query = Apply::with(['loan_type', 'loan_name', 'user'])
+                  ->where('status', 'approved'); // only approved loans
+
+    // Filter by Loan Type
+    if ($request->loan_type_id) {
+        $query->where('loan_type_id', $request->loan_type_id);
     }
+
+    // Filter by Loan Name
+    if ($request->loan_name_id) {
+        $query->where('loan_name_id', $request->loan_name_id);
+    }
+
+    // Filter by User (Registration)
+    if ($request->user_id) {
+        $query->where('user_id', $request->user_id);
+    }
+
+    $approvedLoans = $query->get();
+
+    // For dropdowns
+    $loanTypes = \App\Models\LoanType::all();
+    $loanNames = \App\Models\LoanName::all();
+    $users = \App\Models\Registration::all();
+
+    return view('backend.pages.loan.give-loan', compact('approvedLoans', 'loanTypes', 'loanNames', 'users'));
+}
+
 
     // Give loan
     public function giveLoan($id)
@@ -28,11 +53,36 @@ class GiveLoanController extends Controller
     }
 
     // List given loans
-    public function givenLoans()
-    {
-        $givenLoans = Apply::where('status','loan_given')->get();
-        return view('backend.pages.loan.give-loans', compact('givenLoans'));
+// List given loans with search/filter
+public function givenLoans(Request $request)
+{
+    $query = Apply::with(['loan_type','loan_name','user'])
+                  ->where('status','loan_given');
+
+    // Filter by Loan Type
+    if ($request->loan_type_id) {
+        $query->where('loan_type_id', $request->loan_type_id);
     }
+
+    // Filter by Loan Name
+    if ($request->loan_name_id) {
+        $query->where('loan_name_id', $request->loan_name_id);
+    }
+
+    // Filter by User
+    if ($request->user_id) {
+        $query->where('user_id', $request->user_id);
+    }
+
+    $givenLoans = $query->get();
+
+    $loanTypes = \App\Models\LoanType::all();
+    $loanNames = \App\Models\LoanName::all();
+    $users = \App\Models\Registration::all();
+
+    return view('backend.pages.loan.give-loans', compact('givenLoans','loanTypes','loanNames','users'));
+}
+
 
     // Loan details with installments
     public function loanDetails($id)
