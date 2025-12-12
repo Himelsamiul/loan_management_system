@@ -89,8 +89,9 @@ public function givenLoans(Request $request)
     // Loan details with installments
     public function loanDetails($id)
     {
-        $loan = Apply::with(['loan_type','loan_name'])->findOrFail($id);
+        $loan = Apply::with(['loan_type','loan_name'])->leftjoin('users','users.id','applies.user_id')->findOrFail($id);
 
+        
         $interestRate = $loan->loan_name->interest ?? 0;
         $totalAmount = $loan->loan_amount + ($loan->loan_amount*$interestRate/100);
         $monthlyInstallment = $loan->loan_duration ? $totalAmount/$loan->loan_duration : 0;
@@ -136,13 +137,16 @@ public function givenLoans(Request $request)
             ];
         }
 
+        // return $loan->email;
         return view('backend.pages.loan.loan-details', compact('loan','installments','totalAmount'));
     }
 
     // Pay installment
     public function payInstallment(Request $request, $id)
 {
-    $loan = Apply::with('loan_name')->findOrFail($id);
+    // return $request->input();
+    $loan = Apply::with('loan_name')->leftjoin('users','users.id','applies.user_id')->findOrFail($id);
+    // return $loan;
 
     $loan->paid_installments += 1;
     $loan->paid_amount += ($request->amount + $request->fine);
