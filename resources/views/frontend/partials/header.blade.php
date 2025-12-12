@@ -104,9 +104,9 @@
                         <nav class="header__menu">
                             <ul>
                                 <li><a href="{{ route('home') }}">Home</a></li>
-                                <li><a href="">About</a></li>
-                                <li><a href="">Services</a></li>
-                                <li><a href="">Blog</a></li>
+                                <li><a href="{{ route('about.us') }}">About</a></li>
+                                <li><a href="{{ route('service') }}">Services</a></li>
+                                <li><a href="{{ route('Blogs') }}">Blog</a></li>
 
                                 <li><a href="{{ route('frontend.apply.show') }}">Apply</a>
                                 </li>

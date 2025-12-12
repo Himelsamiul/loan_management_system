@@ -19,6 +19,9 @@ use App\Http\Controllers\Backend\RoleController;
 */
 Route::get('/', [HomeController::class, 'home'])->name('home');
  Route::get('/apply-show', [ApplyController::class, 'show'])->name('frontend.apply.show');
+ Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about.us');
+ Route::get('/blogs', [HomeController::class, 'blogs'])->name('Blogs');
+ Route::get('/service', [HomeController::class, 'service'])->name('service');
 // Login
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
