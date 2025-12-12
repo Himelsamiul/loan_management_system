@@ -88,7 +88,7 @@
                     <td>{{ number_format($ins['fine'], 2) }} BDT</td>
                     <td>{{ number_format($totalWithFine, 2) }} BDT</td>
                     <td>{{ $paidAmount > 0 ? number_format($paidAmount, 2) . ' BDT' : '-' }}</td>
-                    <td>{{ $paidDate }}</td>
+                    <td>{{ $ins['paid_date'] ?? '-' }}</td>
                     <td>
                         <form action="{{ route('admin.loan.pay', $loan->id) }}" method="POST">
                             @csrf

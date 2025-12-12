@@ -87,66 +87,74 @@ public function givenLoans(Request $request)
 
 
     // Loan details with installments
-    public function loanDetails($id)
-    {
-        $loan = Apply::with(['loan_type','loan_name'])->leftjoin('users','users.id','applies.user_id')->findOrFail($id);
+public function loanDetails($id)
+{
+    // Get loan with registration info
+    $loan = Apply::with(['loan_type','loan_name'])
+                ->leftJoin('registrations', 'registrations.id', 'applies.user_id')
+                ->select('applies.*', 'registrations.name', 'registrations.sure_name', 'registrations.email')
+                ->findOrFail($id);
 
-        
-        $interestRate = $loan->loan_name->interest ?? 0;
-        $totalAmount = $loan->loan_amount + ($loan->loan_amount*$interestRate/100);
-        $monthlyInstallment = $loan->loan_duration ? $totalAmount/$loan->loan_duration : 0;
+    $interestRate = $loan->loan_name->interest ?? 0;
+    $totalAmount = $loan->loan_amount + ($loan->loan_amount*$interestRate/100);
+    $monthlyInstallment = $loan->loan_duration ? $totalAmount/$loan->loan_duration : 0;
 
-        $loanStart = $loan->start_date_loan ? Carbon::parse($loan->start_date_loan) : now();
+    $loanStart = $loan->start_date_loan ? Carbon::parse($loan->start_date_loan) : now();
+    $graceDays = 5;
+    $finePercentPerDay = 2;
+    $fineMaxDays = 10;
 
-        $graceDays = 5;
-        $finePercentPerDay = 2;
-        $fineMaxDays = 10;
+    $installments = [];
+    $loanDuration = $loan->loan_duration;
+    $paidInstallments = $loan->paid_installments ?? 0;
 
-        $installments = [];
-        $loanDuration = $loan->loan_duration;
-        $paid = $loan->paid_installments ?? 0;
+    for($i=0; $i<$loanDuration; $i++){
+        $dueDate = $loanStart->copy()->addMonths($i+1);
+        $dueDateGrace = $dueDate->copy()->addDays($graceDays);
 
-        for($i=0;$i<$loanDuration;$i++){
-            $dueDate = $loanStart->copy()->addMonths($i+1);
-            $dueDateGrace = $dueDate->copy()->addDays($graceDays);
+        $today = now();
+        $status = '';
+        $fine = 0;
+        $lateDays = 0;
 
-            $today = now();
-            $status = '';
-            $fine = 0;
-            $lateDays = 0;
-
-            if($today->lt($dueDate)){
-                $status = 'Upcoming';
-            } elseif($today->between($dueDate,$dueDateGrace)){
-                $status = 'Grace Period';
-            } else {
-                $status = 'Late';
-                $lateDays = min($dueDateGrace->diffInDays($today),$fineMaxDays);
-                $fine = ($monthlyInstallment*$finePercentPerDay/100)*$lateDays;
-            }
-
-            $installments[] = [
-                'month'=>$i+1,
-                'due_date'=>$dueDate->format('d M Y'),
-                'due_date_grace'=>$dueDateGrace->format('d M Y'),
-                'amount'=>round($monthlyInstallment,2),
-                'status'=>$status,
-                'fine'=>round($fine,2),
-                'is_paid'=>($i+1)<=$paid,
-                'can_pay'=>($i+1)==($paid+1)
-            ];
+        if($today->lt($dueDate)){
+            $status = 'Upcoming';
+        } elseif($today->between($dueDate,$dueDateGrace)){
+            $status = 'Grace Period';
+        } else {
+            $status = 'Late';
+            $lateDays = min($dueDateGrace->diffInDays($today), $fineMaxDays);
+            $fine = ($monthlyInstallment*$finePercentPerDay/100)*$lateDays;
         }
 
-        // return $loan->email;
-        return view('backend.pages.loan.loan-details', compact('loan','installments','totalAmount'));
+        $isPaid = ($i+1) <= $paidInstallments;
+
+        $installments[] = [
+            'month' => $i+1,
+            'due_date' => $dueDate->format('d M Y'),
+            'due_date_grace' => $dueDateGrace->format('d M Y'),
+            'amount' => round($monthlyInstallment,2),
+            'status' => $status,
+            'fine' => round($fine,2),
+            'is_paid' => $isPaid,
+            'can_pay' => ($i+1) == ($paidInstallments+1),
+            'paid_date' => $isPaid ? $loan->updated_at->format('d M Y') : null // store real payment date
+        ];
     }
+
+    return view('backend.pages.loan.loan-details', compact('loan','installments','totalAmount'));
+}
+
 
     // Pay installment
     public function payInstallment(Request $request, $id)
 {
     // return $request->input();
-    $loan = Apply::with('loan_name')->leftjoin('users','users.id','applies.user_id')->findOrFail($id);
-    // return $loan;
+$loan = Apply::with('loan_name')
+    ->leftJoin('registrations', 'registrations.id', 'applies.user_id')
+    ->select('applies.*', 'registrations.name', 'registrations.sure_name', 'registrations.email')
+    ->findOrFail($id);
+
 
     $loan->paid_installments += 1;
     $loan->paid_amount += ($request->amount + $request->fine);
