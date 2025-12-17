@@ -53,7 +53,7 @@
             </div>
             <div class="detail-row">
                 <span class="label">Fine / Penalty:</span>
-                <span>{{ number_format($installment['fine'], 2) }} BDT</span>
+                <span  style="color: #e74c3c; font-weight: bold;">{{ number_format($installment['fine'], 2) }} BDT</span>
             </div>
             <div class="detail-row" style="font-size: 1.1em;">
                 <span class="label">Total Paid This Month:</span>
@@ -80,7 +80,7 @@
                 </div>
                 <div class="detail-row">
                     <span class="label">Remaining Balance:</span>
-                    <span style="color: #e74c3c; font-weight: bold;">{{ number_format($remaining, 2) }} BDT</span>
+                    <span style="color: #2f0872ff; font-weight: bold;">{{ number_format($remaining, 2) }} BDT</span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Remaining Installments:</span>
