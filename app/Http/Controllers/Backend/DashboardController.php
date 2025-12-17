@@ -8,41 +8,37 @@ use App\Models\Apply;
 use App\Models\LoanType;
 use App\Models\LoanName;
 use App\Models\User;
+use App\Models\Employee;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // ===== BASIC COUNTS =====
+        // ===== APPLICATION COUNTS =====
         $totalApplications = Apply::count();
         $totalPending = Apply::where('status', 'pending')->count();
         $totalRejected = Apply::where('status', 'rejected')->count();
 
-        // Approved means approved + loan given
         $totalApproved = Apply::whereIn('status', ['approved', 'loan_given'])->count();
-
         $totalLoanGiven = Apply::where('status', 'loan_given')->count();
         $totalClosed = Apply::where('status', 'closed')->count();
 
-        // Ongoing loans (loan_given but installments not completed)
         $totalOngoing = Apply::where('status', 'loan_given')
-                             ->whereColumn('paid_installments', '<', 'loan_duration')
-                             ->count();
+            ->whereColumn('paid_installments', '<', 'loan_duration')
+            ->count();
 
-        // ===== MONEY COUNTS =====
-        // Total loan disbursed
+        // ===== FINANCIAL COUNTS =====
         $totalGivenAmount = Apply::where('status', 'loan_given')->sum('loan_amount');
-
-        // Total collection (installments paid)
         $totalCollection = Apply::sum('paid_amount');
 
-
-        // ===== LOAN TYPE & NAME =====
+        // ===== LOAN META =====
         $totalLoanTypes = LoanType::count();
         $totalLoanNames = LoanName::count();
 
-        // ===== USER REGISTRATION =====
-        $totalUsers = User::count();
+        // ===== USER / STAFF =====
+        $totalUsers = User::count();          // Admins (Seeder 6)
+        $totalEmployees = Employee::count();  // Employees table
+        $totalStaff = $totalUsers + $totalEmployees;
 
         return view('backend.pages.dashboard', compact(
             'totalApplications',
@@ -56,7 +52,9 @@ class DashboardController extends Controller
             'totalCollection',
             'totalLoanTypes',
             'totalLoanNames',
-            'totalUsers'
+            'totalUsers',
+            'totalEmployees',
+            'totalStaff'
         ));
     }
 }
