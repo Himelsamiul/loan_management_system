@@ -1,31 +1,4 @@
-  <div class="contact-widget set-bg" data-setbg="img/contact-widget.jpg">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-md-6">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6">
-                            <div class="contact__widget__item">
-                                <h4>Global Office</h4>
-                                <p>917 Atlantic Lane, Strongsville, NY, United State</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6">
-                            <div class="contact__widget__item">
-                                <h4> Dhaka Office</h4>
-                                <p>Mirpur-2, Dhaka, Bangladesh</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="contact__widget__phone">
-                        <span>Contact Us Now!</span>
-                        <h2>+880 1310-439446</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Footer Section Begin -->
 <footer class="footer">
     
         <div class="container">

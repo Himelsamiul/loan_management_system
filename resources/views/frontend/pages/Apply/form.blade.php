@@ -2,69 +2,65 @@
 
 @section('content')
 
-<!-- Include AOS CSS -->
+<!-- AOS CSS for animations -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
 
 <style>
     body {
-        background-color: #f5f7fa; /* Light soft background */
+        background-color: #f0f4f8;
     }
 
     .card {
         background: #ffffff;
-        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
     }
 
     h2, h4 {
-        color: #0d6efd; /* Bootstrap primary blue */
-        font-weight: 600;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #333;
-    }
-
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
-    }
-
-    .btn-primary {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004080;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .btn-primary:focus {
-        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.5);
-    }
-
-    /* Section headers */
-    .section-header {
-        background-color: #e9f2ff;
-        padding: 10px 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
         color: #0d6efd;
         font-weight: 600;
     }
 
-    /* Highlighted card shadow */
-    .card-shadow {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
+    label {
+        font-weight: 500;
     }
 
-    .card-shadow:hover {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border-radius: 10px;
     }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        box-shadow: none;
+        border: 1px solid #ced4da;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+    }
+
+    button.btn-primary {
+        border-radius: 50px;
+        padding: 10px 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    button.btn-primary:hover {
+        background-color: #0b5ed7;
+        transform: scale(1.05);
+    }
+
 </style>
 
 <div class="container py-5">
@@ -75,68 +71,108 @@
         </div>
     @endif
 
-    <div class="card card-shadow rounded-4 p-4" data-aos="fade-up" data-aos-duration="1000">
-        <h2 class="mb-4 text-center">Apply for: <span class="text-primary">{{ $loan->loan_name }}</span></h2>
-        <p class="text-center"><strong>Loan Type:</strong> {{ $loan->loanType->loan_name }} | <strong>Interest:</strong> {{ $loan->interest }}%</p>
-        <hr>
+    <div class="card" data-aos="fade-up">
+        <h2 class="mb-3 text-center">{{ $loan->loan_name }} Application</h2>
+        <p class="text-center mb-4">
+            <strong>Loan Type:</strong> {{ $loan->loanType->loan_name }} |
+            <strong>Interest:</strong> {{ $loan->interest }}%
+        </p>
 
-        <form action="{{ route('frontend.loan.apply.review') }}" method="POST" enctype="multipart/form-data">
+        <!-- Loan Document Notice -->
+        <div class="alert alert-warning mb-4" data-aos="fade-up" data-aos-delay="100">
+            <strong>দ্রষ্টব্য:</strong> ঋণের জন্য নথি সঠিকভাবে আপলোড করা আবশ্যক। বিভিন্ন লোনের জন্য নথি নিচে দেওয়া হলো:
+            <hr>
+            <strong>১. Education Loan:</strong>
+            <ol>
+                <li>Admission Letter / University Registration</li>
+                <li>Guardian’s NID Copy</li>
+                <li>Income Proof of Guardian</li>
+                <li>Academic Certificates</li>
+                <li>Bank Account Details</li>
+            </ol>
+            <strong>২. Health Loan:</strong>
+            <ol>
+                <li>Medical Prescription / Doctor’s Letter</li>
+                <li>Hospital Estimate / Invoice</li>
+                <li>Patient’s NID Copy</li>
+                <li>Income Proof</li>
+                <li>Bank Account Details</li>
+            </ol>
+            <strong>৩. Personal Loan:</strong>
+            <ol>
+                <li>Applicant’s NID Copy</li>
+                <li>Income Proof / Salary Slip</li>
+                <li>Bank Statement (last 6 months)</li>
+                <li>Passport Size Photo</li>
+                <li>Bank Account Details</li>
+            </ol>
+            <strong>৪. Business Loan:</strong>
+            <ol>
+                <li>Business Trade License / Registration</li>
+                <li>Tax Identification Number (TIN)</li>
+                <li>Financial Statement / Profit-Loss Report</li>
+                <li>Bank Statement (last 6 months)</li>
+                <li>Bank Account Details</li>
+            </ol>
+        </div>
+
+        <form action="{{ route('frontend.loan.apply.review') }}" method="POST" enctype="multipart/form-data" data-aos="fade-up" data-aos-delay="200">
             @csrf
             <input type="hidden" name="loan_name_id" value="{{ $loan->id }}">
             <input type="hidden" name="loan_type_id" value="{{ $loan->loan_type_id }}">
-
             @php $user = Auth::user(); @endphp
 
-            <!-- ===================== PERSONAL INFORMATION ===================== -->
-            <div class="section-header" data-aos="fade-right">Personal Details</div>
-            <div class="row g-3">
-                <div class="col-md-6" data-aos="fade-right">
-                    <label class="form-label">Full Name *</label>
-                    <input type="text" name="name" class="form-control form-control-lg" value="{{ $user->name }} {{ $user->sure_name }}" readonly>
+            <!-- Personal Details -->
+            <h4 class="mt-4">Personal Details</h4>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Full Name *</label>
+                    <input type="text" name="name" class="form-control" value="{{ $user->name }} {{ $user->sure_name }}" readonly>
                 </div>
-
-                <div class="col-md-6" data-aos="fade-left">
-                    <label class="form-label">Father’s Name *</label>
-                    <input type="text" name="father_name" class="form-control form-control-lg" required>
+                <div class="col-md-6">
+                    <label>Father’s Name *</label>
+                    <input type="text" name="father_name" class="form-control" required>
                 </div>
+            </div>
 
-                <div class="col-md-6" data-aos="fade-right">
-                    <label class="form-label">Mother’s Name *</label>
-                    <input type="text" name="mother_name" class="form-control form-control-lg" required>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Mother’s Name *</label>
+                    <input type="text" name="mother_name" class="form-control" required>
                 </div>
-
-                <div class="col-md-6" data-aos="fade-left">
-                    <label class="form-label">NID Number *</label>
-                    <input type="text" name="nid_number" class="form-control form-control-lg" required>
+                <div class="col-md-6">
+                    <label>NID Number *</label>
+                    <input type="text" name="nid_number" class="form-control" required>
                 </div>
+            </div>
 
-                <div class="col-md-6" data-aos="fade-right">
-                    <label class="form-label">Date of Birth *</label>
-                    <input type="text" name="date_of_birth" class="form-control form-control-lg" value="{{ $user->date_of_birth }}" id="dob" readonly>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Date of Birth *</label>
+                    <input type="date" name="date_of_birth" class="form-control" value="{{ $user->date_of_birth }}">
                 </div>
-
-                <div class="col-md-6" data-aos="fade-left">
-                    <label class="form-label">Mobile *</label>
-                    <input type="text" name="mobile" class="form-control form-control-lg" value="{{ $user->mobile }}" readonly>
+                <div class="col-md-6">
+                    <label>Mobile *</label>
+                    <input type="text" name="mobile" class="form-control" value="{{ $user->mobile }}" readonly>
                 </div>
+            </div>
 
-                <div class="col-md-6" data-aos="fade-right">
-                    <label class="form-label">Email *</label>
-                    <input type="email" name="email" class="form-control form-control-lg" value="{{ $user->email }}" readonly>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Email *</label>
+                    <input type="email" name="email" class="form-control" value="{{ $user->email }}" readonly>
                 </div>
-
-                <div class="col-md-6" data-aos="fade-left">
-                    <label class="form-label">Gender *</label>
-                    <select name="gender" class="form-select form-select-lg" required>
+                <div class="col-md-3">
+                    <label>Gender *</label>
+                    <select name="gender" class="form-select" required>
                         <option value="">Select Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                     </select>
                 </div>
-
-                <div class="col-md-6" data-aos="fade-right">
-                    <label class="form-label">Marital Status *</label>
-                    <select name="marital_status" class="form-select form-select-lg" required>
+                <div class="col-md-3">
+                    <label>Marital Status *</label>
+                    <select name="marital_status" class="form-select" required>
                         <option value="">Select Status</option>
                         <option value="single">Single</option>
                         <option value="married">Married</option>
@@ -146,62 +182,54 @@
                 </div>
             </div>
 
-            <!-- ===================== LOAN AMOUNT ===================== -->
-            <div class="section-header mt-5" data-aos="fade-left">Loan Information</div>
-            <div class="row g-3">
-                <div class="col-md-6" data-aos="fade-right">
-                    <label class="form-label">Loan Amount (BDT) *</label>
-                    <input type="number" name="loan_amount" class="form-control form-control-lg" required>
+            <!-- Loan Details -->
+            <h4 class="mt-4">Loan Information</h4>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Loan Amount (BDT) *</label>
+                    <input type="number" name="loan_amount" class="form-control" required>
                 </div>
-                <div class="col-md-6" data-aos="fade-left">
-                    <label class="form-label">Loan Duration (in months) *</label>
-                    <input type="number" name="loan_duration" class="form-control form-control-lg" min="1" required>
+                <div class="col-md-6">
+                    <label>Loan Duration (months) *</label>
+                    <input type="number" name="loan_duration" class="form-control" min="1" required>
                 </div>
             </div>
 
-            <!-- ===================== ADDRESS INFORMATION ===================== -->
-            <div class="section-header mt-5" data-aos="fade-right">Address Details</div>
-            <div class="mb-3" data-aos="fade-up">
-                <label class="form-label">Present Address *</label>
-                <textarea name="present_address" class="form-control form-control-lg" rows="2" required>{{ $user->address }}</textarea>
+            <!-- Address Details -->
+            <h4 class="mt-4">Address Details</h4>
+            <div class="mb-3">
+                <label>Present Address *</label>
+                <textarea name="present_address" class="form-control" rows="2" required>{{ $user->address }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label>Permanent Address *</label>
+                <textarea name="permanent_address" class="form-control" rows="2" required>{{ $user->address }}</textarea>
             </div>
 
-            <div class="mb-3" data-aos="fade-up">
-                <label class="form-label">Permanent Address *</label>
-                <textarea name="permanent_address" class="form-control form-control-lg" rows="2" required>{{ $user->address }}</textarea>
-            </div>
-
-            <!-- ===================== DOCUMENT UPLOAD ===================== -->
-            <div class="section-header mt-5" data-aos="fade-left">Upload Documents (Optional)</div>
-            <div class="row g-3">
+            <!-- Documents -->
+            <h4 class="mt-4">Upload Documents (Optional)</h4>
+            <div class="row mb-4">
                 @for($i=1; $i<=5; $i++)
-                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="{{ $i * 100 }}">
-                        <label class="form-label">Document {{ $i }}</label>
-                        <input type="file" name="document{{ $i }}" accept="application/pdf" class="form-control form-control-lg">
+                    <div class="col-md-6 mb-3">
+                        <label>Document {{ $i }}</label>
+                        <input type="file" name="document{{ $i }}" accept="application/pdf" class="form-control">
                     </div>
                 @endfor
             </div>
 
-            <div class="text-center mt-4" data-aos="zoom-in">
-                <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">Submit Loan Application</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Submit Loan Application</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Include AOS JS -->
+<!-- AOS JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
     AOS.init({
         duration: 800,
-        once: true
-    });
-
-    // Dynamic date picker
-    document.addEventListener('DOMContentLoaded', function() {
-        const dobInput = document.getElementById('dob');
-        dobInput.type = 'date';
-        dobInput.classList.add('form-control');
+        once: true,
     });
 </script>
 
