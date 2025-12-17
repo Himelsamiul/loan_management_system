@@ -39,7 +39,7 @@ class DashboardController extends Controller
         $totalUsers = User::count();          // Admins (Seeder 6)
         $totalEmployees = Employee::count();  // Employees table
         $totalStaff = $totalUsers + $totalEmployees;
-
+$registrations = \App\Models\Registration::count(); // Registrations
         return view('backend.pages.dashboard', compact(
             'totalApplications',
             'totalPending',
@@ -54,7 +54,8 @@ class DashboardController extends Controller
             'totalLoanNames',
             'totalUsers',
             'totalEmployees',
-            'totalStaff'
+            'totalStaff',
+            'registrations'
         ));
     }
 }

@@ -49,9 +49,9 @@
 .bg-success { background-color: #28a745 !important; }
 .bg-danger { background-color: #dc3545 !important; }
 .bg-warning { background-color: #ffc107 !important; color: #343a40 !important; }
-.bg-info { background-color: #17a2b8 !important; }
-.bg-dark { background-color: #343a40 !important; }
-.bg-secondary { background-color: #6c757d !important; }
+.bg-info { background-color: #33165b71 !important; }
+.bg-dark { background-color: #450529ff !important; }
+.bg-secondary { background-color: #358d5fff !important; }
 
 /* Pie Chart Container */
 .pie-chart-container {
@@ -195,8 +195,8 @@
         <div class="col-lg-3 col-md-6">
             <div class="dashboard-card bg-success d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="card-title">Registered Users</div>
-                    <div class="card-value count-up" data-target="{{ $totalUsers }}">0</div>
+                    <div class="card-title">Clients</div>
+                    <div class="card-value count-up" data-target="{{ $registrations }}">0</div>
                 </div>
                 <div class="card-icon"><i class="fas fa-users"></i></div>
             </div>
@@ -204,7 +204,7 @@
         <div class="col-lg-3 col-md-6">
             <div class="dashboard-card bg-secondary d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="card-title">Employees + Admins</div>
+                    <div class="card-title">Users</div>
                     <div class="card-value count-up" data-target="{{ $totalStaff ?? 0 }}">0</div>
                 </div>
                 <div class="card-icon"><i class="fas fa-user-tie"></i></div>
