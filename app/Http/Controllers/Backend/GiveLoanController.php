@@ -58,8 +58,9 @@ public function index(Request $request)
 // List given loans with search/filter
 public function givenLoans(Request $request)
 {
-    $query = Apply::with(['loan_type','loan_name','user'])
-                  ->where('status','loan_given');
+$query = Apply::with(['loan_type','loan_name','user'])
+              ->whereIn('status', ['loan_given', 'closed']);
+
 
     // Filter by Loan Type
     if ($request->loan_type_id) {
