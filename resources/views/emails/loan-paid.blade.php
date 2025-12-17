@@ -99,8 +99,8 @@
 
         <div class="footer">
             <p>&copy; {{ date('Y') }} Ababil Finance Limited. All rights reserved.</p>
-            <p>123 Finance Street, Dhaka, Bangladesh<br>
-            Support: +880 1234-567890 | Email: support@ababilfinance.com</p>
+            <p>Mirpur-1, Dhaka, Bangladesh<br>
+            Support: +880 1310-439446 | Email: ababilfinance@gmail.com</p>
             <p style="font-size: 10px; color: #aaa; margin-top: 15px;">This is an automated transaction receipt. Please do not reply to this email.</p>
         </div>
     </div>
