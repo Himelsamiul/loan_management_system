@@ -15,4 +15,14 @@ class LoanType extends Model
     {
         return $this->hasMany(LoanName::class);
     }
+
+     public function getIsUsedAttribute()
+    {
+        return $this->loanNames()->exists(); // true if any loan names exist
+    }
+
+     public function getUsedCountAttribute()
+    {
+        return $this->loanNames()->count();
+    }
 }

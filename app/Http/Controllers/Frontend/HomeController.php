@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\LoanType;
 use Illuminate\Http\Request;
+use App\Models\ContactMessage;
 
 class HomeController extends Controller
 {
@@ -26,4 +27,26 @@ class HomeController extends Controller
     {
         return view('frontend.pages.service');
     }
+
+
+    public function contactSubmit(Request $request)
+{
+    $request->validate([
+        'name'    => 'required|string|max:100',
+        'email'   => 'required|email',
+        'phone'   => 'required|string|max:20',
+        'message' => 'required|string',
+    ]);
+
+    ContactMessage::create($request->all());
+
+    return back()->with('success', 'Your message has been sent successfully!');
+}
+
+
+public function contactMessages()
+{
+    $messages = ContactMessage::latest()->paginate(10);
+    return view('backend.contact_messages.index', compact('messages'));
+}
 }

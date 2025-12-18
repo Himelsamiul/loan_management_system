@@ -10,7 +10,16 @@
         <div class="card-body">
 
             @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: '{{ session('success') }}',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                </script>
             @endif
 
             <form action="{{ route('admin.loan.type.store') }}" method="POST" class="row g-3 align-items-end">
@@ -33,41 +42,9 @@
         </div>
     </div>
 
-    {{-- Filters --}}
+    {{-- Loan Type List --}}
     <h3 class="mb-3">Loan Type List</h3>
-    <div class="card shadow-sm mb-3 p-3">
-        <form method="GET" action="{{ route('admin.loan.type.index') }}" class="row g-3 align-items-center">
 
-            <div class="col-md-4">
-                <label class="form-label text-primary fw-bold">From Date</label>
-                <input type="text" name="from_date" id="from_date" class="form-control flatpickr"
-                       placeholder="Select start date" value="{{ request('from_date') }}">
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label text-primary fw-bold">To Date</label>
-                <input type="text" name="to_date" id="to_date" class="form-control flatpickr"
-                       placeholder="Select end date" value="{{ request('to_date') }}">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label text-primary fw-bold">Status</label>
-                <select name="status" class="form-select">
-                    <option value="">All</option>
-                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                </select>
-            </div>
-
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-success w-50 align-self-end">Filter</button>
-                <a href="{{ route('admin.loan.type.index') }}" class="btn btn-secondary w-50 align-self-end">Reset</a>
-            </div>
-
-        </form>
-    </div>
-
-    {{-- Table --}}
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
             <table class="table table-hover table-bordered align-middle">
@@ -77,7 +54,7 @@
                         <th>Loan Name</th>
                         <th>Created Date</th>
                         <th>Status</th>
-                        <th width="15%">Action</th>
+                        <th width="25%">Action</th>
                     </tr>
                 </thead>
 
@@ -88,68 +65,109 @@
                             <td>{{ $type->loan_name }}</td>
                             <td class="text-center">{{ $type->created_at->format('d M Y') }}</td>
                             <td class="text-center">
-                                @if($type->status == 'active')
+                                @if($type->status === 'active')
                                     <span class="badge bg-success">Active</span>
                                 @else
                                     <span class="badge bg-danger">Inactive</span>
                                 @endif
                             </td>
+
                             <td class="text-center">
-                                <a href="{{ route('admin.loan.type.edit', $type->id) }}" class="btn btn-sm btn-warning">Edit</a>
 
-                                <form id="delete-form-{{ $type->id }}" 
-                                      action="{{ route('admin.loan.type.delete', $type->id) }}" 
-                                      method="POST" style="display: none;">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
+                                {{-- LOCK if used --}}
+                                @if($type->is_used)
+                                    <button class="btn btn-sm btn-secondary"
+                                            disabled
+                                            title="This loan type is used in {{ $type->used_count }} loan(s)">
+                                        <i class="fas fa-lock"></i> Locked
+                                    </button>
 
-                                <button type="button" class="btn btn-sm btn-danger deleteBtn" data-id="{{ $type->id }}">
-                                    Delete
-                                </button>
+                                    <button class="btn btn-sm btn-warning" disabled>
+                                        Edit
+                                    </button>
+
+                                    <button class="btn btn-sm btn-danger" disabled>
+                                        Delete
+                                    </button>
+
+                                {{-- Editable if not used --}}
+                                @else
+                                    <button type="button"
+                                            class="btn btn-sm btn-warning editBtn"
+                                            data-url="{{ route('admin.loan.type.edit', $type->id) }}">
+                                        Edit
+                                    </button>
+
+                                    <form id="delete-form-{{ $type->id }}"
+                                          action="{{ route('admin.loan.type.delete', $type->id) }}"
+                                          method="POST" style="display:none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger deleteBtn"
+                                            data-id="{{ $type->id }}">
+                                        Delete
+                                    </button>
+                                @endif
+
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted">No loan types found.</td>
+                            <td colspan="5" class="text-center text-muted">
+                                No loan types found.
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
-
 </div>
-
-{{-- Flatpickr --}}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    flatpickr(".flatpickr", {
-        dateFormat: "Y-m-d",
-        allowInput: true
-    });
-</script>
 
 {{-- SweetAlert --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-document.querySelectorAll('.deleteBtn').forEach(button => {
-    button.addEventListener('click', function () {
-        let id = this.getAttribute('data-id');
+/* DELETE CONFIRM */
+document.querySelectorAll('.deleteBtn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        let id = this.dataset.id;
 
         Swal.fire({
-            title: "Are you sure?",
-            text: "You want to delete this Loan Type",
-            icon: "warning",
+            title: 'Are you sure?',
+            text: 'This loan type will be permanently deleted!',
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it",
-            cancelButtonText: "No"
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it',
         }).then((result) => {
             if (result.isConfirmed) {
                 document.getElementById(`delete-form-${id}`).submit();
+            }
+        });
+    });
+});
+
+/* EDIT CONFIRM */
+document.querySelectorAll('.editBtn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        let url = this.dataset.url;
+
+        Swal.fire({
+            title: 'Edit Loan Type?',
+            text: 'Do you want to edit this loan type?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Yes, edit'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
             }
         });
     });

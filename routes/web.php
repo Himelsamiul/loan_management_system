@@ -18,6 +18,9 @@ use App\Http\Controllers\Backend\RoleController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::post('/contact-submit', [HomeController::class, 'contactSubmit'])
+    ->name('contact.submit');
+
  Route::get('/apply-show', [ApplyController::class, 'show'])->name('frontend.apply.show');
  Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about.us');
  Route::get('/blogs', [HomeController::class, 'blogs'])->name('Blogs');
@@ -62,6 +65,10 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->group(function () {
+
+
+    Route::get('/contact-messages', [HomeController::class, 'contactMessages'])
+    ->name('contact.messages');
 
     // Admin public login/logout
     Route::get('/login',  [AuthController::class, 'showLoginForm'])->name('login');

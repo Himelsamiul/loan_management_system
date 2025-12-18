@@ -7,10 +7,6 @@
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
             <form action="{{ route('admin.loan.name.store') }}" method="POST" class="row g-3">
                 @csrf
 
@@ -51,47 +47,6 @@
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div class="card shadow-sm mb-3 p-3">
-        <form method="GET" action="{{ route('admin.loan.name.index') }}" class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label">Loan Type</label>
-                <select name="loan_type_id" class="form-select">
-                    <option value="">All</option>
-                    @foreach($loanTypes as $type)
-                        <option value="{{ $type->id }}" {{ request('loan_type_id')==$type->id?'selected':'' }}>
-                            {{ $type->loan_name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-select">
-                    <option value="">All</option>
-                    <option value="active" {{ request('status')=='active'?'selected':'' }}>Active</option>
-                    <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>Inactive</option>
-                </select>
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">From</label>
-                <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">To</label>
-                <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control">
-            </div>
-
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-success w-50">Filter</button>
-                <a href="{{ route('admin.loan.name.index') }}" class="btn btn-secondary w-50">Reset</a>
-            </div>
-        </form>
-    </div>
-
     {{-- Table --}}
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
@@ -116,20 +71,26 @@
                             <td>
                                 @if($loan->status=='active')
                                     <span class="badge bg-success">Active</span>
-                                @else
+                                @elseif($loan->status=='inactive')
                                     <span class="badge bg-danger">Inactive</span>
                                 @endif
                             </td>
-                            <td>
-                                <a href="{{ route('admin.loan.name.edit', $loan->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <td class="text-center">
+                                @if($loan->applies()->count() > 0)
+                                    <button type="button" class="btn btn-sm btn-secondary lockedBtn">
+                                        <i class="bi bi-lock-fill"></i> Locked
+                                    </button>
+                                @else
+                                    <a href="{{ route('admin.loan.name.edit', $loan->id) }}" class="btn btn-sm btn-warning editBtn">Edit</a>
 
-                                <form id="delete-form-{{ $loan->id }}" action="{{ route('admin.loan.name.delete', $loan->id) }}" method="POST" style="display:none;">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                                <button type="button" class="btn btn-sm btn-danger deleteBtn" data-id="{{ $loan->id }}">
-                                    Delete
-                                </button>
+                                    <form id="delete-form-{{ $loan->id }}" action="{{ route('admin.loan.name.delete', $loan->id) }}" method="POST" style="display:none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <button type="button" class="btn btn-sm btn-danger deleteBtn" data-id="{{ $loan->id }}">
+                                        Delete
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -144,26 +105,89 @@
 
 </div>
 
+{{-- JS --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.querySelectorAll('.deleteBtn').forEach(btn=>{
-    btn.addEventListener('click',function(){
-        let id = this.getAttribute('data-id');
+document.addEventListener('DOMContentLoaded', function(){
+
+    // Show create success alert
+    @if(session('success'))
         Swal.fire({
-            title:"Are you sure?",
-            text:"You want to delete this Loan Name",
-            icon:"warning",
-            showCancelButton:true,
-            confirmButtonColor:"#3085d6",
-            cancelButtonColor:"#d33",
-            confirmButtonText:"Yes, delete it",
-            cancelButtonText:"No"
-        }).then((result)=>{
-            if(result.isConfirmed){
-                document.getElementById('delete-form-'+id).submit();
-            }
-        })
-    })
-})
+            icon: 'success',
+            title: 'Success',
+            text: '{{ session("success") }}',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    // Delete button
+    document.querySelectorAll('.deleteBtn').forEach(btn=>{
+        btn.addEventListener('click',function(){
+            let id = this.getAttribute('data-id');
+            Swal.fire({
+                title:"Are you sure?",
+                text:"You want to delete this Loan Name",
+                icon:"warning",
+                showCancelButton:true,
+                confirmButtonColor:"#3085d6",
+                cancelButtonColor:"#d33",
+                confirmButtonText:"Yes, delete it",
+                cancelButtonText:"No"
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    document.getElementById('delete-form-'+id).submit();
+                }
+            })
+        });
+    });
+
+    // Locked button notification
+    document.querySelectorAll('.lockedBtn').forEach(btn=>{
+        btn.addEventListener('click', function(){
+            Swal.fire({
+                icon: 'info',
+                title: 'Locked',
+                text: 'This loan is already in use in Apply. Cannot edit or delete.',
+                timer: 2500,
+                showConfirmButton: false
+            });
+        });
+    });
+
+    // Edit button confirmation
+    document.querySelectorAll('.editBtn').forEach(btn=>{
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            let url = this.getAttribute('href');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to edit this loan name",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, edit it',
+                cancelButtonText: 'Cancel'
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+
+    // Show update success alert
+    @if(session('update_success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Updated',
+            text: '{{ session("update_success") }}',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+});
 </script>
 @endsection

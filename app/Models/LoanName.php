@@ -22,6 +22,12 @@ class LoanName extends Model
         return $this->belongsTo(LoanType::class);
     }
 
+    // Relation: LoanName has many Apply
+    public function applies()
+    {
+        return $this->hasMany(Apply::class, 'loan_name_id');
+    }
+
     // Scope to get only active loan names
     public function scopeActive($query)
     {

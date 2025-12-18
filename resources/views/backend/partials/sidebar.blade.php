@@ -85,6 +85,15 @@
                 <span class="sidebar-link-title">Roles</span>
             </a>
         </li>
+{{-- Contact Messages --}}
+<li class="sidebar-list-item">
+    <a class="sidebar-link d-flex align-items-center"
+       href="{{ route('admin.contact.messages') }}"
+       onclick="setActiveLink(this)">
+        <i class="fas fa-envelope-open-text me-3"></i>
+        <span class="sidebar-link-title">Contact Messages</span>
+    </a>
+</li>
 
         {{-- Logout --}}
         <li class="sidebar-list-item">

@@ -12,38 +12,65 @@
                     <a href="#" class="primary-btn howit-btn">How It Works</a>
                 </div>
             </div>
-            <div class="col-lg-5 offset-lg-2">
+  <div class="col-lg-5 offset-lg-2">
                 <div class="hero__form">
-                    <h3>How much do you need?</h3>
-                    <form action="#">
+                    <h3>Get in Touch</h3>
+
+                    <form action="{{ route('contact.submit') }}" method="POST">
+                        @csrf
+
                         <div class="input-list">
                             <div class="input-list-item">
-                                <p>Amount (BDT):</p>
-                                <input type="text" placeholder="e.g., 50,000">
+                                <p>Your Name:</p>
+                                <input type="text" name="name" placeholder="e.g., Md. Hasan" required>
                             </div>
                             <div class="input-list-item">
-                                <p>Repayment Period (days):</p>
-                                <input type="text" placeholder="e.g., 90">
+                                <p>Email Address:</p>
+                                <input type="email" name="email" placeholder="e.g., hasan@gmail.com" required>
                             </div>
                         </div>
+
+                        <div class="input-list">
+                            <div class="input-list-item">
+                                <p>Phone Number:</p>
+                                <input type="text" name="phone" placeholder="e.g., 017XXXXXXXX" required>
+                            </div>
+                            <div class="input-list-item">
+                                <p>Subject:</p>
+                                <input type="text" name="subject" placeholder="Loan inquiry / Support / Others">
+                            </div>
+                        </div>
+
                         <div class="input-full-width">
-                            <p>Estimated Monthly Payment:</p>
-                            <input type="text" placeholder="Calculated automatically">
+                            <p>Your Message:</p>
+                            <textarea 
+                                name="message" 
+                                rows="4" 
+                                placeholder="Write your message here..." 
+                                required
+                            ></textarea>
                         </div>
-                        <div class="input-list last">
-                            <div class="input-list-item">
-                                <p>Name:</p>
-                                <input type="text" placeholder="e.g., Md. Hasan">
-                            </div>
-                            <div class="input-list-item">
-                                <p>Phone:</p>
-                                <input type="text" placeholder="e.g., 017XXXXXXXX">
-                            </div>
-                        </div>
-                        <button type="submit" class="site-btn">Get Your Loan Now!</button>
+
+                        <button type="submit" class="site-btn">
+                            Send Message
+                        </button>
                     </form>
+
                 </div>
             </div>
+            @if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        Swal.fire({
+            icon: 'success',
+            title: 'Message Sent!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#12824A',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
         </div>
     </div>
 </section>
@@ -219,7 +246,7 @@
                 <div class="col-lg-4">
                     <div class="testimonial__item">
                         <img src="img/testimonial/testimonial-1.png" alt="">
-                        <h5>Md. Hasan</h5>
+                        <h5>Mst Sadia Sultana</h5>
                         <span>Entrepreneur, Dhaka</span>
                         <p>Ababil Finance helped me secure a business loan quickly and transparently. Highly recommended!</p>
                     </div>
@@ -235,7 +262,7 @@
                 <div class="col-lg-4">
                     <div class="testimonial__item">
                         <img src="img/testimonial/testimonial-3.png" alt="">
-                        <h5>Sabbir Ahmed</h5>
+                        <h5>Nisha Ahmed</h5>
                         <span>Business Owner, Sylhet</span>
                         <p>Fast approval and flexible terms helped me expand my shop. Great service for local business owners.</p>
                     </div>
@@ -393,5 +420,8 @@
         </div>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Blog Section End -->
 @endsection
