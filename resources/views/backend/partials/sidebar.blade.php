@@ -56,7 +56,7 @@
             <a class="sidebar-link d-flex align-items-center"
                href="{{ route('admin.loan.approved') }}" onclick="setActiveLink(this)">
                 <i class="fas fa-chart-line me-3"></i>
-                <span class="sidebar-link-title">Loan Reports</span>
+                <span class="sidebar-link-title">Loan approve list</span>
             </a>
         </li>
         {{-- Reports --}}
@@ -73,7 +73,7 @@
             <a class="sidebar-link d-flex align-items-center"
                href="{{ route('admin.employees.index') }}" onclick="setActiveLink(this)">
                 <i class="fas fa-cog me-3"></i>
-                <span class="sidebar-link-title">Employees</span>
+                <span class="sidebar-link-title">System Users</span>
             </a>
         </li>
 

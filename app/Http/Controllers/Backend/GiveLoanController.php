@@ -132,7 +132,35 @@ public function loanDetails($id)
 
     return view('backend.pages.loan.loan-details', compact('loan','installments','totalAmount'));
 }
+public function givenLoans(Request $request)
+{
+$query = Apply::with(['loan_type','loan_name','user'])
+              ->whereIn('status', ['loan_given', 'closed']);
 
+
+    // Filter by Loan Type
+    if ($request->loan_type_id) {
+        $query->where('loan_type_id', $request->loan_type_id);
+    }
+
+    // Filter by Loan Name
+    if ($request->loan_name_id) {
+        $query->where('loan_name_id', $request->loan_name_id);
+    }
+
+    // Filter by User
+    if ($request->user_id) {
+        $query->where('user_id', $request->user_id);
+    }
+
+    $givenLoans = $query->paginate(10);
+
+    $loanTypes = \App\Models\LoanType::all();
+    $loanNames = \App\Models\LoanName::all();
+    $users = \App\Models\Registration::all();
+
+    return view('backend.pages.loan.give-loans', compact('givenLoans','loanTypes','loanNames','users'));
+}
 
     // Pay installment
     public function payInstallment(Request $request, $id)
