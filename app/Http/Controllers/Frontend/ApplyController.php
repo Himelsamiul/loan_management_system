@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\LoanApplicationSubmitted;
 use App\Mail\LoanAppliedMail;
+use App\Mail\LoanApplicationStatusMail;
 
 class ApplyController extends Controller
 {
@@ -162,21 +163,32 @@ public function index(Request $request)
 
 
     // Backend: Approve/Reject application
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status'=>'required|in:approved,rejected'
-        ]);
+   public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status'=>'required|in:approved,rejected'
+    ]);
 
-        $application = Apply::findOrFail($id);
-        $application->status = $request->status;
+    // Fetch the application with user info using left join
+    $application = Apply::leftJoin('registrations', 'registrations.id', 'applies.user_id')
+                        ->select('applies.*', 'registrations.name', 'registrations.sure_name', 'registrations.email')
+                        ->where('applies.id', $id)
+                        ->firstOrFail();
 
-        if($request->status == 'approved'){
-            $application->start_date_loan = null;
-        }
+    $application->status = $request->status;
 
-        $application->save();
-
-        return redirect()->back()->with('success','Application status updated successfully.');
+    if($request->status == 'approved'){
+        $application->start_date_loan = null;
     }
+
+    $application->save();
+
+    // Send email if email exists
+    if($application->email){ // email comes from joined table
+        Mail::to($application->email)
+            ->send(new LoanApplicationStatusMail($application, $request->status));
+    }
+
+    return redirect()->back()->with('success','Application status updated successfully. Email sent.');
+}
 }

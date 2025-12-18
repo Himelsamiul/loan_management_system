@@ -8,6 +8,7 @@ use App\Models\Apply;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\LoanPaidMail;
+use App\Mail\LoanGivenMail;
 
 class GiveLoanController extends Controller
 {
@@ -44,47 +45,33 @@ public function index(Request $request)
 
 
     // Give loan
-    public function giveLoan($id)
-    {
-        $loan = Apply::findOrFail($id);
-        $loan->status = 'loan_given';
-        $loan->start_date_loan = now();
-        $loan->save();
-
-        return back()->with('success','Loan successfully given!');
-    }
-
-    // List given loans
-// List given loans with search/filter
-public function givenLoans(Request $request)
+   public function giveLoan($id)
 {
-$query = Apply::with(['loan_type','loan_name','user'])
-              ->whereIn('status', ['loan_given', 'closed']);
+    // Use leftJoin to get user info
+    $loan = Apply::leftJoin('registrations', 'registrations.id', '=', 'applies.user_id')
+                 ->leftJoin('loan_names', 'loan_names.id', '=', 'applies.loan_name_id')
+                 ->select(
+                     'applies.*',
+                     'registrations.name as user_name',
+                     'registrations.sure_name as user_sure_name',
+                     'registrations.email as user_email',
+                     'loan_names.loan_name as loan_name_name',
+                     'loan_names.interest as loan_interest'
+                 )
+                 ->findOrFail($id);
 
+    $loan->status = 'loan_given';
+    $loan->start_date_loan = now();
+    $loan->save();
 
-    // Filter by Loan Type
-    if ($request->loan_type_id) {
-        $query->where('loan_type_id', $request->loan_type_id);
+    // ✅ Send email
+    if($loan->user_email){
+        Mail::to($loan->user_email)->send(new LoanGivenMail($loan));
     }
 
-    // Filter by Loan Name
-    if ($request->loan_name_id) {
-        $query->where('loan_name_id', $request->loan_name_id);
-    }
-
-    // Filter by User
-    if ($request->user_id) {
-        $query->where('user_id', $request->user_id);
-    }
-
-    $givenLoans = $query->orderBy('start_date_loan', 'desc')->paginate(15);
-
-    $loanTypes = \App\Models\LoanType::all();
-    $loanNames = \App\Models\LoanName::all();
-    $users = \App\Models\Registration::all();
-
-    return view('backend.pages.loan.give-loans', compact('givenLoans','loanTypes','loanNames','users'));
+    return back()->with('success','Loan successfully given! Email sent.');
 }
+
 
 
     // Loan details with installments
