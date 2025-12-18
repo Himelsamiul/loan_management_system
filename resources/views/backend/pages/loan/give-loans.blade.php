@@ -5,9 +5,7 @@
 
     <h2 class="mb-3">Given Loans List</h2>
 
-    {{-- ======================== --}}
-    {{-- SEARCH + FILTER SECTION --}}
-    {{-- ======================== --}}
+    {{-- SEARCH + FILTER --}}
     <div class="card mb-4">
         <div class="card-header bg-dark text-white">
             <strong>Search & Filter Given Loans</strong>
@@ -15,7 +13,6 @@
         <div class="card-body">
             <form method="GET" class="row g-3">
 
-                {{-- Loan Type --}}
                 <div class="col-md-3">
                     <label class="form-label">Loan Type</label>
                     <select name="loan_type_id" class="form-select">
@@ -29,7 +26,6 @@
                     </select>
                 </div>
 
-                {{-- Loan Name --}}
                 <div class="col-md-3">
                     <label class="form-label">Loan Name</label>
                     <select name="loan_name_id" class="form-select">
@@ -43,7 +39,6 @@
                     </select>
                 </div>
 
-                {{-- Customer --}}
                 <div class="col-md-3">
                     <label class="form-label">Customer</label>
                     <select name="user_id" class="form-select">
@@ -57,7 +52,6 @@
                     </select>
                 </div>
 
-                {{-- Buttons --}}
                 <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">Search</button>
                     <a href="{{ route('admin.loan.given') }}" class="btn btn-secondary">Refresh</a>
@@ -67,16 +61,12 @@
         </div>
     </div>
 
-    {{-- ======================== --}}
     {{-- SUCCESS MESSAGE --}}
-    {{-- ======================== --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    {{-- ======================== --}}
-    {{-- TABLE SECTION --}}
-    {{-- ======================== --}}
+    {{-- TABLE --}}
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover align-middle">
             <thead class="table-dark">
@@ -90,6 +80,7 @@
                     <th>Total Amount</th>
                     <th>Duration</th>
                     <th>Monthly Installment</th>
+                    <th>Given Date</th> {{-- NEW COLUMN --}}
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -100,9 +91,7 @@
                     @php
                         $interestRate = $loan->loan_name->interest ?? 0;
                         $totalAmount = $loan->loan_amount + ($loan->loan_amount * $interestRate / 100);
-                        $monthlyInstallment = $loan->loan_duration
-                            ? $totalAmount / $loan->loan_duration
-                            : 0;
+                        $monthlyInstallment = $loan->loan_duration ? $totalAmount / $loan->loan_duration : 0;
                     @endphp
                     <tr>
                         <td>{{ $key + 1 }}</td>
@@ -114,6 +103,9 @@
                         <td>{{ number_format($totalAmount, 2) }}</td>
                         <td>{{ $loan->loan_duration }} months</td>
                         <td>{{ number_format($monthlyInstallment, 2) }}</td>
+
+                        {{-- GIVEN DATE --}}
+                        <td>{{ $loan->start_date_loan ? \Carbon\Carbon::parse($loan->start_date_loan)->format('d M Y') : 'N/A' }}</td>
 
                         {{-- STATUS --}}
                         <td>
@@ -130,27 +122,28 @@
 
                         {{-- ACTION --}}
                         <td>
-                            <a href="{{ route('admin.loan.details', $loan->id) }}"
-                               class="btn btn-sm btn-info">
+                            <a href="{{ route('admin.loan.details', $loan->id) }}" class="btn btn-sm btn-info">
                                 View Details
                             </a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="text-center text-muted">
+                        <td colspan="12" class="text-center text-muted">
                             No given loans found.
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+
+        {{-- Optional: Pagination links --}}
+        <div class="mt-3">
+            {{ $givenLoans->links() }}
+        </div>
     </div>
 </div>
 
-{{-- ======================== --}}
-{{-- OPTIONAL CSS --}}
-{{-- ======================== --}}
 <style>
     table th, table td {
         white-space: nowrap;

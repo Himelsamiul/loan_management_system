@@ -3,19 +3,18 @@
 @section('content')
 <div class="container-fluid py-4"> {{-- Full width container --}}
 
-    <h2 class="mb-3">All Loan Applications</h2>
+    <h2 class="mb-3 text-center text-primary fw-bold">All Loan Applications</h2>
 
     {{-- ======================== --}}
     {{-- SEARCH + FILTER SECTION --}}
     {{-- ======================== --}}
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white">
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header text-white" style="background: linear-gradient(90deg, #0d6efd, #6610f2);">
             <strong>Search & Filter Loans</strong>
         </div>
         <div class="card-body">
             <form method="GET" class="row g-3">
 
-                {{-- Loan Type --}}
                 <div class="col-md-2">
                     <label class="form-label">Loan Type</label>
                     <select name="loan_type_id" class="form-select">
@@ -28,7 +27,6 @@
                     </select>
                 </div>
 
-                {{-- Loan Name --}}
                 <div class="col-md-2">
                     <label class="form-label">Loan Name</label>
                     <select name="loan_name_id" class="form-select">
@@ -41,7 +39,6 @@
                     </select>
                 </div>
 
-                {{-- Customer --}}
                 <div class="col-md-2">
                     <label class="form-label">Customer Name</label>
                     <select name="customer_id" class="form-select">
@@ -54,13 +51,11 @@
                     </select>
                 </div>
 
-                {{-- Mobile --}}
                 <div class="col-md-2">
                     <label class="form-label">Mobile</label>
                     <input type="text" name="mobile" value="{{ request('mobile') }}" class="form-control">
                 </div>
 
-                {{-- Status --}}
                 <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
@@ -74,23 +69,32 @@
                 </div>
 
                 <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-primary w-100">Search</button>
+                    <button class="btn btn-gradient w-100" style="background: linear-gradient(90deg, #6610f2, #0d6efd); color:#fff; font-weight:600;">Search</button>
                 </div>
 
             </form>
         </div>
     </div>
 
+    {{-- Success message --}}
     @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+            timer: 2500,
+            showConfirmButton: false
+        });
+    </script>
     @endif
 
     {{-- ======================== --}}
     {{-- TABLE SECTION --}}
     {{-- ======================== --}}
-    <div class="table-responsive"> {{-- Allows horizontal scroll on small screens --}}
-        <table class="table table-bordered table-striped table-hover align-middle" style="min-width: 1500px;"> {{-- set min-width --}}
-            <thead class="table-dark">
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-bordered table-striped table-hover align-middle" style="min-width: 1500px;">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>SL</th>
                     <th>Loan Type</th>
@@ -116,7 +120,7 @@
             </thead>
             <tbody>
                 @forelse($applications as $key => $app)
-                <tr>
+                <tr class="text-center table-light" style="transition: all 0.3s;" onmouseover="this.style.backgroundColor='#e9f5ff'" onmouseout="this.style.backgroundColor=''">
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $app->loan_type->loan_name ?? 'N/A' }}</td>
                     <td>{{ $app->loan_name->loan_name ?? 'N/A' }}</td>
@@ -164,18 +168,18 @@
                     <td>{{ $app->created_at->format('d M Y H:i') }}</td>
                     <td>
                         @if($app->status == 'pending')
-                        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;">
+                        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;" class="statusForm">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="status" value="approved">
-                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                            <button type="submit" class="btn btn-sm btn-success approveBtn">Approve</button>
                         </form>
 
-                        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;">
+                        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;" class="statusForm">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="status" value="rejected">
-                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                            <button type="submit" class="btn btn-sm btn-danger rejectBtn">Reject</button>
                         </form>
                         @else
                         <span class="text-muted">Action Done</span>
@@ -184,7 +188,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="19" class="text-center">No applications found.</td>
+                    <td colspan="19" class="text-center py-4">No applications found.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -197,14 +201,66 @@
     </div>
 </div>
 
-{{-- Optional CSS to reduce row height and wrap text --}}
+{{-- SweetAlert Scripts --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Approve confirmation
+    document.querySelectorAll('.approveBtn').forEach(btn => {
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to approve this application?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, approve it!',
+                cancelButtonText: 'Cancel'
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    this.closest('form').submit();
+                }
+            });
+        });
+    });
+
+    // Reject confirmation
+    document.querySelectorAll('.rejectBtn').forEach(btn => {
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to reject this application?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, reject it!',
+                cancelButtonText: 'Cancel'
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    this.closest('form').submit();
+                }
+            });
+        });
+    });
+
+});
+</script>
+
+{{-- Optional CSS --}}
 <style>
-    table td, table th {
-        white-space: nowrap; /* Prevent wrapping */
-        vertical-align: middle;
-    }
-    .table-responsive {
-        overflow-x: auto;
-    }
+.table-hover tbody tr:hover {
+    transform: scale(1.01);
+    background-color: #f0f8ff !important;
+    transition: all 0.3s;
+}
+
+.btn-gradient:hover {
+    opacity: 0.9;
+}
 </style>
 @endsection

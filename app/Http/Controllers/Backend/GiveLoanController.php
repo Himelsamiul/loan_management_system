@@ -32,7 +32,7 @@ public function index(Request $request)
         $query->where('user_id', $request->user_id);
     }
 
-    $approvedLoans = $query->get();
+  $approvedLoans = $query->orderBy('created_at', 'desc')->paginate(15);
 
     // For dropdowns
     $loanTypes = \App\Models\LoanType::all();
@@ -77,7 +77,7 @@ $query = Apply::with(['loan_type','loan_name','user'])
         $query->where('user_id', $request->user_id);
     }
 
-    $givenLoans = $query->get();
+    $givenLoans = $query->orderBy('start_date_loan', 'desc')->paginate(15);
 
     $loanTypes = \App\Models\LoanType::all();
     $loanNames = \App\Models\LoanName::all();

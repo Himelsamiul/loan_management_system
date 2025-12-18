@@ -10,6 +10,9 @@ use App\Models\Apply;
 use App\Models\Registration;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LoanApplicationSubmitted;
+use App\Mail\LoanAppliedMail;
 
 class ApplyController extends Controller
 {
@@ -66,41 +69,55 @@ class ApplyController extends Controller
 
     // Frontend: final submission
     public function store(Request $request)
-    {
-        $request->validate([
-            'loan_type_id'=>'required|exists:loan_types,id',
-            'loan_name_id'=>'required|exists:loan_names,id',
-            'name'=>'required|string|max:255',
-            'father_name'=>'required|string|max:255',
-            'mother_name'=>'required|string|max:255',
-            'nid_number'=>'required|string|max:50',
-            'date_of_birth'=>'required|date',
-            'gender'=>'required|in:male,female',
-            'marital_status'=>'required|in:single,married,divorced,widowed',
-            'loan_amount'=>'required|numeric|min:1',
-            'loan_duration'=>'required|numeric|min:1',
-            'present_address'=>'required|string',
-            'permanent_address'=>'required|string',
-        ]);
+{
+    $request->validate([
+        'loan_type_id'=>'required|exists:loan_types,id',
+        'loan_name_id'=>'required|exists:loan_names,id',
+        'name'=>'required|string|max:255',
+        'father_name'=>'required|string|max:255',
+        'mother_name'=>'required|string|max:255',
+        'nid_number'=>'required|string|max:50',
+        'date_of_birth'=>'required|date',
+        'gender'=>'required|in:male,female',
+        'marital_status'=>'required|in:single,married,divorced,widowed',
+        'loan_amount'=>'required|numeric|min:1',
+        'loan_duration'=>'required|numeric|min:1',
+        'present_address'=>'required|string',
+        'permanent_address'=>'required|string',
+    ]);
 
-        $data = $request->all();
-        $data['status'] = 'pending';
-        $data['user_id'] = Auth::id();
+    $data = $request->all();
+    $data['status'] = 'pending';
+    $data['user_id'] = Auth::id();
 
-        // upload documents
-        for($i=1;$i<=5;$i++){
-            $fileKey = "document$i";
-            if($request->hasFile($fileKey)){
-                $fileName = time() . "_doc{$i}." . $request->$fileKey->extension();
-                $request->$fileKey->move(public_path('uploads/loan-documents'), $fileName);
-                $data[$fileKey] = $fileName;
-            }
+    // upload documents
+    for($i=1;$i<=5;$i++){
+        $fileKey = "document$i";
+        if($request->hasFile($fileKey)){
+            $fileName = time() . "_doc{$i}." . $request->$fileKey->extension();
+            $request->$fileKey->move(public_path('uploads/loan-documents'), $fileName);
+            $data[$fileKey] = $fileName;
         }
-
-        Apply::create($data);
-
-        return redirect()->route('frontend.apply.show')->with('success','Loan application submitted successfully.');
     }
+
+    // create loan application
+    $apply = Apply::create($data);
+
+    // ✅ Fetch the application along with user details via leftJoin
+    $loan = Apply::leftJoin('registrations', 'registrations.id', 'applies.user_id')
+                 ->select('applies.*', 'registrations.name', 'registrations.sure_name', 'registrations.email')
+                 ->where('applies.id', $apply->id)
+                 ->first();
+
+    // Send email if email exists
+    if($loan && $loan->email){
+        Mail::to($loan->email)->send(new LoanAppliedMail($loan));
+    }
+
+    return redirect()->route('frontend.apply.show')
+                     ->with('success','Loan application submitted successfully. An email has been sent.');
+}
+
 
     // Backend: list all applications
 public function index(Request $request)
@@ -129,7 +146,7 @@ public function index(Request $request)
         $query->where('status', $request->status);
     }
 
-    $applications = $query->paginate(15);
+   $applications = $query->orderBy('created_at', 'desc')->paginate(15);
 
     $loanTypes = LoanType::all();
     $loanNames = LoanName::all();
