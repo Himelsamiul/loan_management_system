@@ -60,7 +60,6 @@
         background-color: #0b5ed7;
         transform: scale(1.05);
     }
-
 </style>
 
 <div class="container py-5">
@@ -217,12 +216,95 @@
                 @endfor
             </div>
 
+            <!-- Payment Section -->
+            <h4 class="mt-4">Payment Details</h4>
+
+            <!-- Mobile Banking (Optional) -->
+            <div id="mobileBankingFields" class="mb-3">
+                <h5>Mobile Banking (Optional)</h5>
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        <label>Provider</label>
+                        <select name="mobile_provider" id="mobile_provider" class="form-select">
+                            <option value="">Select Provider</option>
+                            <option value="bKash">bKash</option>
+                            <option value="Nagad">Nagad</option>
+                            <option value="Rocket">Rocket</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Mobile Number</label>
+                        <input type="text" name="mobile_number" id="mobile_number" class="form-control" placeholder="Enter mobile number">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Payment (Mandatory) -->
+            <div id="cardFields" class="mb-3">
+                <h5>Card Payment (Mandatory)</h5>
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label>Card Type *</label>
+                        <select name="card_type" id="card_type" class="form-select" required>
+                            <option value="">Select Type</option>
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Card Brand *</label>
+                        <select name="card_brand" id="card_brand" class="form-select" required>
+                            <option value="">Select Brand</option>
+                            <option value="Visa">Visa</option>
+                            <option value="MasterCard">MasterCard</option>
+                            <option value="American Express">American Express</option>
+                            <option value="Discover">Discover</option>
+                            <option value="UnionPay">UnionPay</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Card Number *</label>
+                        <input type="text" name="card_number" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Card Holder *</label>
+                        <input type="text" name="card_holder" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label>Expiry *</label>
+                        <input type="text" name="card_expiry" placeholder="MM/YY" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label>CVC *</label>
+                        <input type="text" name="card_cvc" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+
             <div class="text-center">
                 <button type="submit" class="btn btn-primary btn-lg">Submit Loan Application</button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- JS for Mobile Banking optional requirement -->
+<script>
+    const mobileProvider = document.getElementById('mobile_provider');
+    const mobileNumber = document.getElementById('mobile_number');
+
+    mobileProvider.addEventListener('change', function(){
+        if(this.value){
+            mobileNumber.required = true; // provider select করলে number required
+        } else {
+            mobileNumber.required = false; // otherwise optional
+            mobileNumber.value = '';
+        }
+    });
+</script>
 
 <!-- AOS JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>

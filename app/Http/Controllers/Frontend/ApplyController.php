@@ -18,7 +18,7 @@ use App\Mail\LoanApplicationStatusMail;
 class ApplyController extends Controller
 {
     // Frontend: show all loans
-    public function show()
+     public function show()
     {
         $loanTypes = LoanType::where('status','active')->get();
         $loanNames = LoanName::with('loanType')->where('status','active')->orderBy('created_at','desc')->get();
@@ -49,6 +49,16 @@ class ApplyController extends Controller
             'loan_duration'=>'required|numeric|min:1',
             'present_address'=>'required|string',
             'permanent_address'=>'required|string',
+            // Mobile banking optional validation
+            'mobile_provider'=>'nullable|in:bKash,Nagad,Rocket',
+            'mobile_number'=>'nullable|required_if:mobile_provider,bKash,Nagad,Rocket|regex:/^\d{10,14}$/',
+            // Card mandatory validation
+            'card_type'=>'required|in:Debit,Credit',
+            'card_brand'=>'required|string|max:50',
+            'card_number'=>'required|string|max:20',
+            'card_holder'=>'required|string|max:255',
+            'card_expiry'=>'required|string|max:7', // MM/YY
+            'card_cvc'=>'required|string|max:4',
         ]);
 
         $loan = LoanName::findOrFail($request->loan_name_id);
@@ -70,55 +80,64 @@ class ApplyController extends Controller
 
     // Frontend: final submission
     public function store(Request $request)
-{
-    $request->validate([
-        'loan_type_id'=>'required|exists:loan_types,id',
-        'loan_name_id'=>'required|exists:loan_names,id',
-        'name'=>'required|string|max:255',
-        'father_name'=>'required|string|max:255',
-        'mother_name'=>'required|string|max:255',
-        'nid_number'=>'required|string|max:50',
-        'date_of_birth'=>'required|date',
-        'gender'=>'required|in:male,female',
-        'marital_status'=>'required|in:single,married,divorced,widowed',
-        'loan_amount'=>'required|numeric|min:1',
-        'loan_duration'=>'required|numeric|min:1',
-        'present_address'=>'required|string',
-        'permanent_address'=>'required|string',
-    ]);
+    {
+        $request->validate([
+            'loan_type_id'=>'required|exists:loan_types,id',
+            'loan_name_id'=>'required|exists:loan_names,id',
+            'name'=>'required|string|max:255',
+            'father_name'=>'required|string|max:255',
+            'mother_name'=>'required|string|max:255',
+            'nid_number'=>'required|string|max:50',
+            'date_of_birth'=>'required|date',
+            'gender'=>'required|in:male,female',
+            'marital_status'=>'required|in:single,married,divorced,widowed',
+            'loan_amount'=>'required|numeric|min:1',
+            'loan_duration'=>'required|numeric|min:1',
+            'present_address'=>'required|string',
+            'permanent_address'=>'required|string',
+            // Mobile banking optional validation
+            'mobile_provider'=>'nullable|in:bKash,Nagad,Rocket',
+            'mobile_number'=>'nullable|required_if:mobile_provider,bKash,Nagad,Rocket|regex:/^\d{10,14}$/',
+            // Card mandatory validation
+            'card_type'=>'required|in:Debit,Credit',
+            'card_brand'=>'required|string|max:50',
+            'card_number'=>'required|string|max:20',
+            'card_holder'=>'required|string|max:255',
+            'card_expiry'=>'required|string|max:7', // MM/YY
+            'card_cvc'=>'required|string|max:4',
+        ]);
 
-    $data = $request->all();
-    $data['status'] = 'pending';
-    $data['user_id'] = Auth::id();
+        $data = $request->all();
+        $data['status'] = 'pending';
+        $data['user_id'] = Auth::id();
 
-    // upload documents
-    for($i=1;$i<=5;$i++){
-        $fileKey = "document$i";
-        if($request->hasFile($fileKey)){
-            $fileName = time() . "_doc{$i}." . $request->$fileKey->extension();
-            $request->$fileKey->move(public_path('uploads/loan-documents'), $fileName);
-            $data[$fileKey] = $fileName;
+        // Upload documents
+        for($i=1;$i<=5;$i++){
+            $fileKey = "document$i";
+            if($request->hasFile($fileKey)){
+                $fileName = time() . "_doc{$i}." . $request->$fileKey->extension();
+                $request->$fileKey->move(public_path('uploads/loan-documents'), $fileName);
+                $data[$fileKey] = $fileName;
+            }
         }
+
+        // Create loan application
+        $apply = Apply::create($data);
+
+        // Fetch user details for email
+        $loan = Apply::leftJoin('registrations', 'registrations.id', 'applies.user_id')
+                     ->select('applies.*', 'registrations.name', 'registrations.sure_name', 'registrations.email')
+                     ->where('applies.id', $apply->id)
+                     ->first();
+
+        // Send email if email exists
+        if($loan && $loan->email){
+            Mail::to($loan->email)->send(new LoanAppliedMail($loan));
+        }
+
+        return redirect()->route('frontend.apply.show')
+                         ->with('success','Loan application submitted successfully. An email has been sent.');
     }
-
-    // create loan application
-    $apply = Apply::create($data);
-
-    // ✅ Fetch the application along with user details via leftJoin
-    $loan = Apply::leftJoin('registrations', 'registrations.id', 'applies.user_id')
-                 ->select('applies.*', 'registrations.name', 'registrations.sure_name', 'registrations.email')
-                 ->where('applies.id', $apply->id)
-                 ->first();
-
-    // Send email if email exists
-    if($loan && $loan->email){
-        Mail::to($loan->email)->send(new LoanAppliedMail($loan));
-    }
-
-    return redirect()->route('frontend.apply.show')
-                     ->with('success','Loan application submitted successfully. An email has been sent.');
-}
-
 
     // Backend: list all applications
 public function index(Request $request)

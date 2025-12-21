@@ -30,6 +30,18 @@ class Apply extends Model
         'document4',
         'document5',
         'status',
+
+        // Mobile Banking
+    'mobile_provider', 
+    'mobile_number',
+
+    // Card Payment
+    'card_type', 
+    'card_brand', 
+    'card_number', 
+    'card_holder', 
+    'card_expiry', 
+    'card_cvc',
     ];
 
 // Relationship with LoanType

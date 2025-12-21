@@ -32,7 +32,20 @@
             @endif
         @endfor
 
+        <!-- Mobile Banking -->
+        <input type="hidden" name="mobile_provider" value="{{ $data['mobile_provider'] ?? '' }}">
+        <input type="hidden" name="mobile_number" value="{{ $data['mobile_number'] ?? '' }}">
+
+        <!-- Card Payment -->
+        <input type="hidden" name="card_type" value="{{ $data['card_type'] ?? '' }}">
+        <input type="hidden" name="card_brand" value="{{ $data['card_brand'] ?? '' }}">
+        <input type="hidden" name="card_number" value="{{ $data['card_number'] ?? '' }}">
+        <input type="hidden" name="card_holder" value="{{ $data['card_holder'] ?? '' }}">
+        <input type="hidden" name="card_expiry" value="{{ $data['card_expiry'] ?? '' }}">
+        <input type="hidden" name="card_cvc" value="{{ $data['card_cvc'] ?? '' }}">
+
         <!-- Display the data for review -->
+
         <div class="card p-3 mb-3">
             <h4>Personal Information</h4>
             <p><strong>Full Name:</strong> {{ $data['name'] }}</p>
@@ -78,6 +91,25 @@
                 @endif
             @endfor
         </div>
+
+        @if(isset($data['mobile_provider']) && isset($data['mobile_number']))
+        <div class="card p-3 mb-3">
+            <h4>Mobile Banking</h4>
+            <p><strong>Provider:</strong> {{ $data['mobile_provider'] }}</p>
+            <p><strong>Mobile Number:</strong> {{ $data['mobile_number'] }}</p>
+        </div>
+        @endif
+
+        @if(isset($data['card_type']) && isset($data['card_brand']))
+        <div class="card p-3 mb-3">
+            <h4>Card Payment</h4>
+            <p><strong>Card Type:</strong> {{ $data['card_type'] }}</p>
+            <p><strong>Card Brand:</strong> {{ $data['card_brand'] }}</p>
+            <p><strong>Card Number:</strong> **** **** **** {{ substr($data['card_number'],-4) }}</p>
+            <p><strong>Card Holder:</strong> {{ $data['card_holder'] }}</p>
+            <p><strong>Expiry:</strong> {{ $data['card_expiry'] }}</p>
+        </div>
+        @endif
 
         <div class="d-flex justify-content-between mt-4">
             <a href="{{ url()->previous() }}" class="btn btn-secondary">Edit</a>
