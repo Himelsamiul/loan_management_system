@@ -104,7 +104,11 @@ class ApplyController extends Controller
             'name'=>'required|string|max:255',
             'father_name'=>'required|string|max:255',
             'mother_name'=>'required|string|max:255',
-            'nid_number'=>'required|string|max:50',
+            'nid_number' => [
+        'required',
+        'numeric',
+        'digits_between:9,16', // 9 to 16 digits allowed
+    ],
             'date_of_birth'=>'required|date',
             'gender'=>'required|in:male,female',
             'marital_status'=>'required|in:single,married,divorced,widowed',
@@ -113,15 +117,28 @@ class ApplyController extends Controller
             'present_address'=>'required|string',
             'permanent_address'=>'required|string',
             // Mobile banking optional validation
-            'mobile_provider'=>'nullable|in:bKash,Nagad,Rocket',
-            'mobile_number'=>'nullable|required_if:mobile_provider,bKash,Nagad,Rocket|regex:/^\d{10,14}$/',
+            'mobile_provider' => 'nullable|in:bKash,Nagad,Rocket',
+    'mobile_number' => [
+        'nullable',
+        'required_if:mobile_provider,bKash,Nagad,Rocket',
+        'regex:/^\d{11}$/', // must be exactly 11 digits
+    ],
             // Card mandatory validation
-            'card_type'=>'required|in:Debit,Credit',
-            'card_brand'=>'required|string|max:50',
-            'card_number'=>'required|string|max:20',
-            'card_holder'=>'required|string|max:255',
-            'card_expiry'=>'required|string|max:7', // MM/YY
-            'card_cvc'=>'required|string|max:4',
+            'card_type' => 'required|in:Debit,Credit',
+    'card_brand' => 'required|string|max:50',
+    'card_number' => [
+        'required',
+        'numeric',
+        'digits:16', // exactly 16 digits
+    ],
+    'card_holder' => 'required|string|max:255',
+    'card_expiry' => 'required|string|max:7', // MM/YY format
+    'card_cvc' => [
+        'required',
+        'numeric',
+        'digits_between:3,4', // typically 3 or 4 digits
+    ],
+            // Document uploads
         ]);
 
         $data = $request->all();
