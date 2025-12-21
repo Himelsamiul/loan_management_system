@@ -148,6 +148,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 let savedCard = {
     type: '{{ $loan->card_type ?? '' }}',
@@ -261,7 +263,6 @@ document.querySelectorAll('.pay-btn').forEach(btn => {
                 cardBrandBox.style.display = 'none';
                 cardDetailsBox.style.display = 'none';
 
-                // show only saved mobile provider
                 p.querySelectorAll('.mobile-option').forEach(b => {
                     b.style.display = (b.dataset.method === savedMobile.provider) ? 'inline-block' : 'none';
                 });
@@ -294,28 +295,29 @@ document.querySelectorAll('.pay-btn').forEach(btn => {
                             p.querySelector('#expiry').value     = savedCard.expiry;
                             p.querySelector('#cvc').value        = savedCard.cvc;
 
-                            // ✅ CARD BRAND ICON LOGIC
+                            // CARD BRAND ICON
                             let icon = p.querySelector('#cardBrandIcon');
                             let iconUrl = '';
 
+                            if(savedCard.brand === 'Visa') iconUrl = 'https://cdn-icons-png.flaticon.com/512/196/196578.png';
+                            if(savedCard.brand === 'MasterCard') iconUrl = '{{ asset("master.png") }}';
+                            if(savedCard.brand === 'American Express') iconUrl = '{{ asset("amax.png") }}';
+                            if(savedCard.brand === 'Discover') iconUrl = '{{ asset("discover.png") }}';
+                            if(savedCard.brand === 'UnionPay') iconUrl = '{{ asset("unionpay.png") }}';
+                            icon.innerHTML = iconUrl ? `<img src="${iconUrl}" width="45">` : '';
+
+                            // 🔥 Dynamic RGB background per card brand
+                            let cardBox = p.querySelector('.gateway-card');
                             if(savedCard.brand === 'Visa')
-                                iconUrl = 'https://cdn-icons-png.flaticon.com/512/196/196578.png';
-
+                                cardBox.style.background = 'linear-gradient(135deg, rgba(96, 141, 226, 1), rgba(42,82,152,1))';
                             if(savedCard.brand === 'MasterCard')
-                                iconUrl = '{{ asset("master.png") }}';
-
+                                cardBox.style.background = 'linear-gradient(135deg, rgba(255,123,0,1), rgba(255,198,0,1))';
                             if(savedCard.brand === 'American Express')
-                                iconUrl = '{{ asset("amax.png") }}';
-
+                                cardBox.style.background = 'linear-gradient(135deg, rgba(0,153,153,1), rgba(51,204,204,1))';
                             if(savedCard.brand === 'Discover')
-                                iconUrl = '{{ asset("discover.png") }}';
-
+                                cardBox.style.background = 'linear-gradient(135deg, rgba(102,51,153,1), rgba(153,102,204,1))';
                             if(savedCard.brand === 'UnionPay')
-                                iconUrl = '{{ asset("unionpay.png") }}';
-
-                            icon.innerHTML = iconUrl
-                                ? `<img src="${iconUrl}" width="45">`
-                                : '';
+                                cardBox.style.background = 'linear-gradient(135deg, rgba(0,102,51,1), rgba(51,153,102,1))';
                         }
 
                         p.dataset.selectedMethod = b.dataset.method;
@@ -343,6 +345,7 @@ document.querySelectorAll('.pay-btn').forEach(btn => {
     });
 });
 </script>
+
 
 
 <style>
@@ -398,13 +401,16 @@ document.querySelectorAll('.pay-btn').forEach(btn => {
     margin-top:6px;
 }
 
-.gateway-card {
-    background: linear-gradient(
-        135deg,
-        rgba(15, 32, 39, 1),   /* Dark Navy */
-        rgba(165, 77, 99, 1),   /* Teal Blue */
-        rgba(44, 83, 100, 1)   /* Steel Blue */
-    );
+.gateway-card{
+    border-radius: 16px;
+    padding: 14px;
+    margin-top: 10px;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* background will be applied via JS dynamically */
+
     border-radius: 16px;
     padding: 14px;
     margin-top: 10px;
