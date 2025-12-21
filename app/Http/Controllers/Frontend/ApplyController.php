@@ -200,7 +200,7 @@ public function index(Request $request)
         $query->where('status', $request->status);
     }
 
-   $applications = $query->orderBy('created_at', 'desc')->paginate(15);
+   $applications = $query->orderBy('created_at', 'desc')->paginate(35);
 
     $loanTypes = LoanType::all();
     $loanNames = LoanName::all();
