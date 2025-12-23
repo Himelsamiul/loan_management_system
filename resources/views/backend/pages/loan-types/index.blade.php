@@ -26,8 +26,8 @@
                 @csrf
 
                 <div class="col-md-6">
-                    <label class="form-label">Loan Name</label>
-                    <input type="text" name="loan_name" class="form-control" placeholder="Enter loan name" required>
+                    <label class="form-label">Loan Type</label>
+                    <input type="text" name="loan_name" class="form-control" placeholder="Enter loan type" required>
                     @error('loan_name')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
@@ -42,16 +42,21 @@
         </div>
     </div>
 
+    {{-- Search Field --}}
+    <div class="mb-3">
+        <input type="text" id="loanTypeSearch" class="form-control form-control-lg shadow-sm" placeholder="🔍 Search Loan Type..." style="max-width:400px;">
+    </div>
+
     {{-- Loan Type List --}}
     <h3 class="mb-3">Loan Type List</h3>
 
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table class="table table-hover table-bordered align-middle">
+            <table class="table table-hover table-bordered align-middle" id="loanTypeTable">
                 <thead class="table-dark text-center">
                     <tr>
                         <th>#</th>
-                        <th>Loan Name</th>
+                        <th>Loan Type</th>
                         <th>Created Date</th>
                         <th>Status</th>
                         <th width="25%">Action</th>
@@ -62,7 +67,7 @@
                     @forelse($loanTypes as $key => $type)
                         <tr>
                             <td class="text-center">{{ $key + 1 }}</td>
-                            <td>{{ $type->loan_name }}</td>
+                            <td class="loan-name">{{ $type->loan_name }}</td>
                             <td class="text-center">{{ $type->created_at->format('d M Y') }}</td>
                             <td class="text-center">
                                 @if($type->status === 'active')
@@ -74,32 +79,24 @@
 
                             <td class="text-center">
 
-                                {{-- LOCK if used --}}
+                                {{-- EDIT LOGIC --}}
+                                <button type="button"
+                                        class="btn btn-sm btn-warning editBtn"
+                                        data-url="{{ route('admin.loan.type.edit', $type->id) }}"
+                                        title="{{ $type->is_used ? 'This loan type is used. Only status can be changed.' : '' }}">
+                                    Edit
+                                </button>
+
+                                {{-- DELETE LOGIC --}}
                                 @if($type->is_used)
-                                    <button class="btn btn-sm btn-secondary"
-                                            disabled
-                                            title="This loan type is used in {{ $type->used_count }} loan(s)">
-                                        <i class="fas fa-lock"></i> Locked
-                                    </button>
-
-                                    <button class="btn btn-sm btn-warning" disabled>
-                                        Edit
-                                    </button>
-
-                                    <button class="btn btn-sm btn-danger" disabled>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-secondary lockedDeleteBtn"
+                                            title="This loan type is used. Cannot delete.">
                                         Delete
                                     </button>
-
-                                {{-- Editable if not used --}}
                                 @else
-                                    <button type="button"
-                                            class="btn btn-sm btn-warning editBtn"
-                                            data-url="{{ route('admin.loan.type.edit', $type->id) }}">
-                                        Edit
-                                    </button>
-
-                                    <form id="delete-form-{{ $type->id }}"
-                                          action="{{ route('admin.loan.type.delete', $type->id) }}"
+                                    <form id="delete-form-{{ $type->id }}" 
+                                          action="{{ route('admin.loan.type.delete', $type->id) }}" 
                                           method="POST" style="display:none;">
                                         @csrf
                                         @method('DELETE')
@@ -127,11 +124,27 @@
     </div>
 </div>
 
-{{-- SweetAlert --}}
+{{-- SweetAlert + Search JS --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-/* DELETE CONFIRM */
+// Client-side Search Filter
+const searchInput = document.getElementById('loanTypeSearch');
+searchInput.addEventListener('keyup', function(){
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('#loanTypeTable tbody tr');
+
+    rows.forEach(row => {
+        const loanName = row.querySelector('.loan-name').textContent.toLowerCase();
+        if(loanName.includes(filter)){
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// DELETE CONFIRM FOR USABLE ITEMS
 document.querySelectorAll('.deleteBtn').forEach(btn => {
     btn.addEventListener('click', function () {
         let id = this.dataset.id;
@@ -152,7 +165,7 @@ document.querySelectorAll('.deleteBtn').forEach(btn => {
     });
 });
 
-/* EDIT CONFIRM */
+// EDIT CONFIRM
 document.querySelectorAll('.editBtn').forEach(btn => {
     btn.addEventListener('click', function () {
         let url = this.dataset.url;
@@ -169,6 +182,18 @@ document.querySelectorAll('.editBtn').forEach(btn => {
             if (result.isConfirmed) {
                 window.location.href = url;
             }
+        });
+    });
+});
+
+// LOCKED DELETE BUTTON ALERT
+document.querySelectorAll('.lockedDeleteBtn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        Swal.fire({
+            icon: 'info',
+            title: 'Cannot Delete',
+            text: "You can't delete this loan type because it is already used in a loan. You can only edit its status.",
+            confirmButtonColor: '#3085d6',
         });
     });
 });

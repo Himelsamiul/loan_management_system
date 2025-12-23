@@ -73,7 +73,7 @@
             <a class="sidebar-link d-flex align-items-center"
                href="{{ route('admin.employees.index') }}" onclick="setActiveLink(this)">
                 <i class="fas fa-cog me-3"></i>
-                <span class="sidebar-link-title">System Users</span>
+                <span class="sidebar-link-title">Employees</span>
             </a>
         </li>
 
@@ -82,7 +82,7 @@
             <a class="sidebar-link d-flex align-items-center"
                href="{{ route('admin.roles.index') }}" onclick="setActiveLink(this)">
                 <i class="fas fa-cog me-3"></i>
-                <span class="sidebar-link-title">Roles</span>
+                <span class="sidebar-link-title">Users</span>
             </a>
         </li>
 {{-- Contact Messages --}}

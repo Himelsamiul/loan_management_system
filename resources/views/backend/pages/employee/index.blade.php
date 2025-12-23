@@ -67,13 +67,18 @@
         </div>
     </div>
 
+    {{-- ===== Search Input ===== --}}
+    <div class="mb-3" style="max-width:400px;">
+        <input type="text" id="employeeSearch" class="form-control form-control-lg shadow-sm" placeholder="🔍 Search by Name...">
+    </div>
+
     {{-- ===== Employees Table ===== --}}
     <div class="card shadow-sm border-secondary">
         <div class="card-header bg-secondary text-white">
             <strong>All Employees</strong>
         </div>
         <div class="card-body">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover" id="employeesTable">
                 <thead class="table-dark">
                     <tr>
                         <th>#</th>
@@ -92,7 +97,7 @@
                         <tr>
                             <td>{{ $key + 1 }}</td>
                             <td>{{ $employee->id_card_number }}</td>
-                            <td>{{ $employee->name }}</td>
+                            <td class="employee-name">{{ $employee->name }}</td>
                             <td>{{ $employee->designation }}</td>
                             <td>{{ $employee->role }}</td>
                             <td>{{ $employee->phone }}</td>
@@ -107,8 +112,7 @@
                                 <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Are you sure you want to delete this employee?')">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this employee?')">Delete</button>
                                 </form>
                                 <form action="{{ route('admin.employees.toggleStatus', $employee->id) }}" method="POST" class="d-inline">
                                     @csrf
@@ -128,4 +132,24 @@
         </div>
     </div>
 </div>
+
+{{-- ===== AJAX-Like Client-Side Search ===== --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('employeeSearch');
+    const tableRows = document.querySelectorAll('#employeesTable tbody tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const nameCell = row.querySelector('.employee-name');
+            if (nameCell) {
+                const text = nameCell.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            }
+        });
+    });
+});
+</script>
 @endsection

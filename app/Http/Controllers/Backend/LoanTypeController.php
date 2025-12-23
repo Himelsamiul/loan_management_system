@@ -54,10 +54,22 @@ class LoanTypeController extends Controller
     }
 
     // Update loan type (can change status here)
-    public function update(Request $request, $id)
-    {
-        $loanType = LoanType::findOrFail($id);
+   public function update(Request $request, $id)
+{
+    $loanType = LoanType::findOrFail($id);
 
+    // Validation
+    if ($loanType->is_used) {
+        // If used → only status can be changed
+        $request->validate([
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $loanType->update([
+            'status' => $request->status,
+        ]);
+    } else {
+        // If not used → full edit allowed
         $request->validate([
             'loan_name' => 'required|unique:loan_types,loan_name,' . $loanType->id,
             'status'    => 'required|in:active,inactive',
@@ -67,14 +79,11 @@ class LoanTypeController extends Controller
             'loan_name' => $request->loan_name,
             'status'    => $request->status,
         ]);
-
-        return redirect()->route('admin.loan.type.index')->with('success', 'Loan type updated successfully!');
     }
 
-    // Delete
-    public function destroy($id)
-    {
-        LoanType::findOrFail($id)->delete();
-        return back()->with('success', 'Loan type deleted!');
-    }
+    return redirect()
+        ->route('admin.loan.type.index')
+        ->with('success', 'Loan type updated successfully!');
+}
+
 }

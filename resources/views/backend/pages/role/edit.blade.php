@@ -2,14 +2,14 @@
 
 @section('content')
 <div class="container py-4">
-    <h2 class="mb-4">Edit Role</h2>
+    <h2 class="mb-4">Edit Employees Access</h2>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
     <div class="card">
-        <div class="card-header bg-warning text-white">Update Role</div>
+        <div class="card-header bg-warning text-white">Update Employee</div>
         <div class="card-body">
             <form action="{{ route('admin.roles.update', $role->id) }}" method="POST">
                 @csrf
@@ -46,7 +46,7 @@
                     <input type="password" name="password_confirmation" class="form-control">
                 </div>
 
-                <button class="btn btn-success">Update Role</button>
+                <button class="btn btn-success">Update employee</button>
                 <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">Back</a>
             </form>
         </div>

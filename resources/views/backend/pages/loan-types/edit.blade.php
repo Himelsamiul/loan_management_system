@@ -17,14 +17,19 @@
                 @method('PUT')
 
                 {{-- Loan Name --}}
-                <div class="mb-3">
-                    <label class="form-label">Loan Name</label>
-                    <input type="text" name="loan_name" class="form-control"
-                           value="{{ $loanType->loan_name }}" required>
+<input type="text"
+       name="loan_name"
+       class="form-control"
+       value="{{ $loanType->loan_name }}"
+       {{ $loanType->is_used ? 'disabled' : 'required' }}>
 
-                    @error('loan_name')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
+
+@if($loanType->is_used)
+    <small class="text-muted">
+        This loan type is already used. Only status can be changed.
+    </small>
+@endif
+
                 </div>
 
                 {{-- Status Dropdown --}}

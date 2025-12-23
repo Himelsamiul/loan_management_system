@@ -5,6 +5,7 @@
 
     <h3 class="mb-3">Create Loan Name</h3>
 
+    {{-- Create Form --}}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form action="{{ route('admin.loan.name.store') }}" method="POST" class="row g-3">
@@ -47,10 +48,15 @@
         </div>
     </div>
 
+    {{-- Search Field --}}
+    <div class="mb-3">
+        <input type="text" id="loanSearch" class="form-control form-control-lg shadow-sm" placeholder="🔍 Search Loan Name..." style="max-width:400px;">
+    </div>
+
     {{-- Table --}}
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover" id="loanTable">
                 <thead class="table-dark text-center">
                     <tr>
                         <th>#</th>
@@ -66,16 +72,21 @@
                         <tr class="text-center">
                             <td>{{ $key+1 }}</td>
                             <td>{{ $loan->loanType->loan_name }}</td>
-                            <td>{{ $loan->loan_name }}</td>
+                            <td class="loan-name">{{ $loan->loan_name }}</td>
                             <td>{{ $loan->interest }}</td>
                             <td>
                                 @if($loan->status=='active')
                                     <span class="badge bg-success">Active</span>
-                                @elseif($loan->status=='inactive')
+                                @else
                                     <span class="badge bg-danger">Inactive</span>
                                 @endif
                             </td>
                             <td class="text-center">
+                                {{-- Status Toggle Button --}}
+                                <button type="button" class="btn btn-sm {{ $loan->status=='active'?'btn-info':'btn-warning' }} statusBtn" data-id="{{ $loan->id }}">
+                                    {{ ucfirst($loan->status) }}
+                                </button>
+
                                 @if($loan->applies()->count() > 0)
                                     <button type="button" class="btn btn-sm btn-secondary lockedBtn">
                                         <i class="bi bi-lock-fill"></i> Locked
@@ -110,7 +121,23 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
 
-    // Show create success alert
+    // Client-side Search Filter
+    const searchInput = document.getElementById('loanSearch');
+    searchInput.addEventListener('keyup', function(){
+        const filter = searchInput.value.toLowerCase();
+        const rows = document.querySelectorAll('#loanTable tbody tr');
+
+        rows.forEach(row => {
+            const loanName = row.querySelector('.loan-name').textContent.toLowerCase();
+            if(loanName.includes(filter)){
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // SweetAlert: Create & Update
     @if(session('success'))
         Swal.fire({
             icon: 'success',
@@ -121,7 +148,17 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     @endif
 
-    // Delete button
+    @if(session('update_success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Updated',
+            text: '{{ session("update_success") }}',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    // Delete
     document.querySelectorAll('.deleteBtn').forEach(btn=>{
         btn.addEventListener('click',function(){
             let id = this.getAttribute('data-id');
@@ -142,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 
-    // Locked button notification
+    // Locked
     document.querySelectorAll('.lockedBtn').forEach(btn=>{
         btn.addEventListener('click', function(){
             Swal.fire({
@@ -155,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 
-    // Edit button confirmation
+    // Edit
     document.querySelectorAll('.editBtn').forEach(btn=>{
         btn.addEventListener('click', function(e){
             e.preventDefault();
@@ -177,16 +214,56 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 
-    // Show update success alert
-    @if(session('update_success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Updated',
-            text: '{{ session("update_success") }}',
-            timer: 2000,
-            showConfirmButton: false
+    // Status Toggle
+    document.querySelectorAll('.statusBtn').forEach(btn=>{
+        btn.addEventListener('click', function(){
+            let id = this.getAttribute('data-id');
+            let button = this;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to change the status",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, change it',
+                cancelButtonText: 'Cancel'
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    fetch("{{ url('admin/loan-name/status-toggle') }}/" + id, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success){
+                            button.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                            if(data.status == 'active'){
+                                button.classList.remove('btn-warning');
+                                button.classList.add('btn-info');
+                            } else {
+                                button.classList.remove('btn-info');
+                                button.classList.add('btn-warning');
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated',
+                                text: data.message,
+                                timer: 3500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                }
+            });
         });
-    @endif
+    });
 
 });
 </script>

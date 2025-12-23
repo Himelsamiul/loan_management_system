@@ -69,4 +69,20 @@ class LoanNameController extends Controller
         LoanName::findOrFail($id)->delete();
         return redirect()->back()->with('success','Loan Name deleted successfully');
     }
+
+    public function statusToggle($id)
+{
+    $loanName = LoanName::findOrFail($id);
+
+    // Toggle status
+    $loanName->status = $loanName->status == 'active' ? 'inactive' : 'active';
+    $loanName->save();
+
+    return response()->json([
+        'success' => true,
+        'status' => $loanName->status,
+        'message' => 'Status updated successfully. Please refresh the page to see the changes in the table.'
+    ]);
+}
+
 }

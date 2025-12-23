@@ -112,6 +112,8 @@ Route::post('/employees/{employee}/toggle-status', [EmployeeController::class, '
         Route::get('/loan-name/{id}/edit', [LoanNameController::class, 'edit'])->name('loan.name.edit');
         Route::put('/loan-name/{id}', [LoanNameController::class, 'update'])->name('loan.name.update');
         Route::delete('/loan-name/{id}', [LoanNameController::class, 'destroy'])->name('loan.name.delete');
+        Route::post('loan-name/status-toggle/{id}', [LoanNameController::class, 'statusToggle'])->name('admin.loan.name.status-toggle');
+
 
         // Loan Applications
         Route::get('/loan-applications', [ApplyController::class, 'index'])->name('loan.applications');

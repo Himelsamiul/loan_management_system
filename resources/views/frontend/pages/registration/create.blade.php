@@ -37,6 +37,15 @@
     button.btn-primary:hover {
         background-color: #0b5ed7;
     }
+
+    .position-relative .toggle-password {
+        position: absolute;
+        top: 38px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 18px;
+        user-select: none;
+    }
 </style>
 
 <div class="container">
@@ -88,14 +97,16 @@
 
                 <hr>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 position-relative">
                     <label>Password *</label>
-                    <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                    <input type="password" name="password" class="form-control" placeholder="Enter password" id="password" required>
+                    <span class="toggle-password">👁️</span>
                 </div>
 
-                <div class="col-md-6 mb-4">
+                <div class="col-md-6 mb-4 position-relative">
                     <label>Re-enter Password *</label>
-                    <input type="password" name="password_confirmation" class="form-control" placeholder="Re-enter password" required>
+                    <input type="password" name="password_confirmation" class="form-control" placeholder="Re-enter password" id="password_confirmation" required>
+                    <span class="toggle-password">👁️</span>
                 </div>
 
                 <div class="col-md-12 text-center">
@@ -119,17 +130,21 @@
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Submit the form
                 this.submit();
+            }
+        });
+    });
 
-                // Optional: Show a success message after form submission
-                Swal.fire({
-                    title: 'Registered!',
-                    text: 'Your registration was successful.',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+    // Password show/hide toggle
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            if(input.type === 'password') {
+                input.type = 'text';
+                this.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                this.textContent = '👁️';
             }
         });
     });

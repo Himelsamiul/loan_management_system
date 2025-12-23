@@ -59,6 +59,7 @@
                 <tr>
                     <th>Month</th>
                     <th>Due Date</th>
+                    <th>Grace till</th>
                     <th>Installment</th>
                     <th>Fine</th>
                     <th>Total</th>
@@ -83,6 +84,7 @@
                 <tr>
                     <td>{{ $ins['month'] }}</td>
                     <td>{{ $ins['due_date'] }}</td>
+                       <td>{{ $ins['due_date_grace'] }}</td>
                     <td>{{ number_format($ins['amount'],2) }} BDT</td>
                     <td>{{ number_format($ins['fine'],2) }} BDT</td>
                     <td>{{ number_format($rowTotal,2) }} BDT</td>
