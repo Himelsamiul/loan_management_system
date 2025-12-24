@@ -42,6 +42,11 @@ class Apply extends Model
     'card_holder', 
     'card_expiry', 
     'card_cvc',
+    'nominee_name',
+    'nominee_relation',
+    'nominee_nid',
+    'nominee_dob',
+    'nominee_address',
     ];
 
 // Relationship with LoanType

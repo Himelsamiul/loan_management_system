@@ -47,6 +47,13 @@ class ApplyController extends Controller
         'digits_between:9,16', // 9 to 16 digits allowed
     ],
 
+    'nominee_name' => 'required|string|max:255',
+'nominee_relation' => 'required|string|max:255',
+'nominee_nid' => 'required|numeric|digits_between:9,16',
+'nominee_dob' => 'required|date',
+'nominee_address' => 'required|string',
+
+
             'date_of_birth'=>'required|date',
             'gender'=>'required|in:male,female',
             'marital_status'=>'required|in:single,married,divorced,widowed',
@@ -98,6 +105,7 @@ class ApplyController extends Controller
     // Frontend: final submission
     public function store(Request $request)
     {
+        
         $request->validate([
             'loan_type_id'=>'required|exists:loan_types,id',
             'loan_name_id'=>'required|exists:loan_names,id',
@@ -109,6 +117,13 @@ class ApplyController extends Controller
         'numeric',
         'digits_between:9,16', // 9 to 16 digits allowed
     ],
+
+    'nominee_name' => 'required|string|max:255',
+'nominee_relation' => 'required|string|max:255',
+'nominee_nid' => 'required|numeric|digits_between:9,16',
+'nominee_dob' => 'required|date',
+'nominee_address' => 'required|string',
+
             'date_of_birth'=>'required|date',
             'gender'=>'required|in:male,female',
             'marital_status'=>'required|in:single,married,divorced,widowed',
@@ -138,6 +153,8 @@ class ApplyController extends Controller
         'numeric',
         'digits_between:3,4', // typically 3 or 4 digits
     ],
+
+
             // Document uploads
         ]);
 
@@ -148,11 +165,15 @@ class ApplyController extends Controller
         // Upload documents
         for($i=1;$i<=5;$i++){
             $fileKey = "document$i";
-            if($request->hasFile($fileKey)){
-                $fileName = time() . "_doc{$i}." . $request->$fileKey->extension();
-                $request->$fileKey->move(public_path('uploads/loan-documents'), $fileName);
-                $data[$fileKey] = $fileName;
-            }
+if($request->hasFile($fileKey)){
+    $file = $request->file($fileKey);
+    
+    $fileName = time() . '_' . $i . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+    $file->move(public_path('uploads/loan-documents'), $fileName);
+
+    // Save only filename in DB
+    $data[$fileKey] = $fileName;
+}
         }
 
         // Create loan application
@@ -244,4 +265,16 @@ public function index(Request $request)
 
     return redirect()->back()->with('success','Application status updated successfully. Email sent.');
 }
+
+// Backend / Admin: show full details of a single application
+public function fullShow($id)
+{
+    // Fetch the application with loan_type, loan_name, and user info
+    $application = Apply::with(['loan_type', 'loan_name', 'user'])
+                        ->where('id', $id)
+                        ->firstOrFail();
+
+    return view('backend.pages.applylist.details', compact('application'));
+}
+
 }

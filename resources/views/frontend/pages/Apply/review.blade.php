@@ -8,7 +8,7 @@
     
     <hr>
 
-    <form action="{{ route('frontend.loan.apply.store') }}" method="POST">
+    <form action="{{ route('frontend.loan.apply.store') }}" method="POST"  enctype="multipart/form-data">
         @csrf
 
         <!-- Hidden fields to pass all data to store -->
@@ -35,6 +35,16 @@
         <!-- Mobile Banking -->
         <input type="hidden" name="mobile_provider" value="{{ $data['mobile_provider'] ?? '' }}">
         <input type="hidden" name="mobile_number" value="{{ $data['mobile_number'] ?? '' }}">
+
+<div class="card p-3 mb-3">
+<!-- Nominee Hidden Inputs -->
+<input type="hidden" name="nominee_name" value="{{ $data['nominee_name'] ?? '' }}">
+<input type="hidden" name="nominee_relation" value="{{ $data['nominee_relation'] ?? '' }}">
+<input type="hidden" name="nominee_nid" value="{{ $data['nominee_nid'] ?? '' }}">
+<input type="hidden" name="nominee_dob" value="{{ $data['nominee_dob'] ?? '' }}">
+<input type="hidden" name="nominee_address" value="{{ $data['nominee_address'] ?? '' }}">
+
+</div>
 
         <!-- Card Payment -->
         <input type="hidden" name="card_type" value="{{ $data['card_type'] ?? '' }}">

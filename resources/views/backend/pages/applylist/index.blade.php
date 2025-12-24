@@ -1,7 +1,7 @@
 @extends('backend.master')
 
 @section('content')
-<div class="container-fluid py-4"> {{-- Full width container --}}
+<div class="container-fluid py-4">
 
     <h2 class="mb-3 text-center text-primary fw-bold">All Loan Applications</h2>
 
@@ -93,55 +93,27 @@
     {{-- TABLE SECTION --}}
     {{-- ======================== --}}
     <div class="table-responsive shadow-sm rounded">
-        <table class="table table-bordered table-striped table-hover align-middle" style="min-width: 1500px;">
+        <table class="table table-bordered table-striped table-hover align-middle">
             <thead class="table-dark text-center">
                 <tr>
                     <th>SL</th>
                     <th>Loan Type</th>
                     <th>Loan Name</th>
-                    <th>Full Name</th>
+                    <th>Applicant Name</th>
                     <th>Mobile</th>
-                    <th>Father Name</th>
-                    <th>Mother Name</th>
-                    <th>NID Number</th>
-                    <th>Date of Birth</th>
-                    <th>Gender</th>
-                    <th>Marital Status</th>
-                    <th>Loan Amount</th>
-                    <th>Loan Duration</th>
-                    <th>Monthly Installment</th>
                     <th>Status</th>
-                    <th>Present Address</th>
-                    <th>Permanent Address</th>
-                    <th>Documents</th>
                     <th>Applied At</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($applications as $key => $app)
-                <tr class="text-center table-light" style="transition: all 0.3s;" onmouseover="this.style.backgroundColor='#e9f5ff'" onmouseout="this.style.backgroundColor=''">
+                <tr class="text-center">
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $app->loan_type->loan_name ?? 'N/A' }}</td>
                     <td>{{ $app->loan_name->loan_name ?? 'N/A' }}</td>
                     <td>{{ $app->name }}</td>
                     <td>{{ $app->user->mobile ?? 'N/A' }}</td>
-                    <td>{{ $app->father_name }}</td>
-                    <td>{{ $app->mother_name }}</td>
-                    <td>{{ $app->nid_number }}</td>
-                    <td>{{ \Carbon\Carbon::parse($app->date_of_birth)->format('d M Y') }}</td>
-                    <td>{{ ucfirst($app->gender) }}</td>
-                    <td>{{ ucfirst($app->marital_status) }}</td>
-                    <td>{{ number_format($app->loan_amount, 2) }}</td>
-                    <td>{{ $app->loan_duration }}</td>
-                    <td>
-                        @php
-                        $interestRate = $app->loan_name->interest ?? 0;
-                        $totalAmount = $app->loan_amount + ($app->loan_amount * $interestRate / 100);
-                        $monthlyInstallment = $app->loan_duration ? $totalAmount / $app->loan_duration : 0;
-                        @endphp
-                        {{ number_format($monthlyInstallment, 2) }}
-                    </td>
                     <td>
                         @if($app->status=='pending')
                             <span class="badge bg-warning">Pending</span>
@@ -155,40 +127,36 @@
                             <span class="badge bg-danger">Rejected</span>
                         @endif
                     </td>
-                    <td>{{ $app->present_address }}</td>
-                    <td>{{ $app->permanent_address }}</td>
-                    <td>
-                        @for($i=1; $i<=5; $i++)
-                            @php $docField="document$i"; @endphp
-                            @if($app->$docField)
-                                <a href="{{ asset('uploads/loan-documents/'.$app->$docField) }}" target="_blank">Doc {{ $i }}</a><br>
-                            @endif
-                        @endfor
-                    </td>
                     <td>{{ $app->created_at->format('d M Y H:i') }}</td>
-                    <td>
-                        @if($app->status == 'pending')
-                        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;" class="statusForm">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="approved">
-                            <button type="submit" class="btn btn-sm btn-success approveBtn">Approve</button>
-                        </form>
+<td>
+    {{-- Approve button --}}
+    @if($app->status == 'pending')
+        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;" class="statusForm">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status" value="approved">
+            <button type="submit" class="btn btn-sm btn-success approveBtn">Approve</button>
+        </form>
 
-                        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;" class="statusForm">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="rejected">
-                            <button type="submit" class="btn btn-sm btn-danger rejectBtn">Reject</button>
-                        </form>
-                        @else
-                        <span class="text-muted">Action Done</span>
-                        @endif
-                    </td>
+        {{-- Reject button --}}
+        <form action="{{ route('admin.loan.updateStatus', $app->id) }}" method="POST" style="display:inline-block;" class="statusForm">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status" value="rejected">
+            <button type="submit" class="btn btn-sm btn-danger rejectBtn">Reject</button>
+        </form>
+    @else
+        <span class="text-muted">Action Done</span>
+    @endif
+
+    {{-- Full Details button --}}
+    <a href="{{ route('admin.loan.fullshow', $app->id) }}" class="btn btn-sm btn-primary mt-1">Full Details</a>
+</td>
+
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="19" class="text-center py-4">No applications found.</td>
+                    <td colspan="8" class="text-center py-4">No applications found.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -203,53 +171,6 @@
 
 {{-- SweetAlert Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    // Approve confirmation
-    document.querySelectorAll('.approveBtn').forEach(btn => {
-        btn.addEventListener('click', function(e){
-            e.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to approve this application?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, approve it!',
-                cancelButtonText: 'Cancel'
-            }).then((result)=>{
-                if(result.isConfirmed){
-                    this.closest('form').submit();
-                }
-            });
-        });
-    });
-
-    // Reject confirmation
-    document.querySelectorAll('.rejectBtn').forEach(btn => {
-        btn.addEventListener('click', function(e){
-            e.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to reject this application?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, reject it!',
-                cancelButtonText: 'Cancel'
-            }).then((result)=>{
-                if(result.isConfirmed){
-                    this.closest('form').submit();
-                }
-            });
-        });
-    });
-
-});
-</script>
 
 {{-- Optional CSS --}}
 <style>

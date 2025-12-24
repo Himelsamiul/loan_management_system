@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/loan-apply/store', [ApplyController::class, 'store'])->name('frontend.loan.apply.store');
     Route::post('/loan-apply/review', [ApplyController::class, 'review'])->name('frontend.loan.apply.review');
 
+
     // View loan installments
     Route::get('/loan/installments/{id}', [RegistrationController::class, 'viewInstallments'])
         ->name('frontend.loan.installments');
@@ -91,6 +92,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/loan-type/edit/{id}', [LoanTypeController::class, 'edit'])->name('loan.type.edit');
         Route::put('/loan-type/update/{id}', [LoanTypeController::class, 'update'])->name('loan.type.update');
         Route::delete('/loan-type/delete/{id}', [LoanTypeController::class, 'destroy'])->name('loan.type.delete');
+
+        // Show full details of a loan application
+// Show full details of a loan application
+Route::get('/admin/loan-application/{id}/details', [ApplyController::class, 'fullShow'])
+     ->name('loan.fullshow');
+
         //employee management
 Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');

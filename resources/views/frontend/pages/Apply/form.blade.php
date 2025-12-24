@@ -189,6 +189,58 @@
                     @enderror
                 </div>
             </div>
+<!-- Nominee Information -->
+<h4 class="mt-4">Nominee Information</h4>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label>Nominee Full Name *</label>
+        <input type="text" name="nominee_name" class="form-control @error('nominee_name') is-invalid @enderror" value="{{ old('nominee_name') }}" required>
+        @error('nominee_name')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+<div class="col-md-6">
+    <label>Relationship with Nominee *</label>
+    <select name="nominee_relation" class="form-select @error('nominee_relation') is-invalid @enderror" required>
+        <option value="">Select Relationship</option>
+        <option value="Father" {{ old('nominee_relation')=='Father' ? 'selected' : '' }}>Father</option>
+        <option value="Mother" {{ old('nominee_relation')=='Mother' ? 'selected' : '' }}>Mother</option>
+        <option value="Brother" {{ old('nominee_relation')=='Brother' ? 'selected' : '' }}>Brother</option>
+        <option value="Sister" {{ old('nominee_relation')=='Sister' ? 'selected' : '' }}>Sister</option>
+        <option value="Spouse" {{ old('nominee_relation')=='Spouse' ? 'selected' : '' }}>Spouse</option>
+        <option value="Other" {{ old('nominee_relation')=='Other' ? 'selected' : '' }}>Other</option>
+    </select>
+    @error('nominee_relation')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label>Nominee NID Number *</label>
+        <input type="text" name="nominee_nid" class="form-control @error('nominee_nid') is-invalid @enderror" value="{{ old('nominee_nid') }}" required>
+        @error('nominee_nid')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+    <div class="col-md-6">
+        <label>Nominee Date of Birth *</label>
+        <input type="date" name="nominee_dob" class="form-control @error('nominee_dob') is-invalid @enderror" value="{{ old('nominee_dob') }}" required>
+        @error('nominee_dob')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<div class="mb-3">
+    <label>Nominee Address *</label>
+    <textarea name="nominee_address" class="form-control @error('nominee_address') is-invalid @enderror" rows="2" required>{{ old('nominee_address') }}</textarea>
+    @error('nominee_address')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
 
             <!-- Loan Details -->
             <h4 class="mt-4">Loan Information</h4>
