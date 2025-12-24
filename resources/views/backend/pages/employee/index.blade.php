@@ -40,7 +40,7 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="role" class="form-label">Role</label>
+                        <label for="role" class="form-label">Department</label>
                         <input type="text" name="role" id="role" class="form-control" value="{{ old('role') }}" required>
                         @error('role')
                             <small class="text-danger">{{ $message }}</small>
@@ -85,7 +85,7 @@
                         <th>ID Card</th>
                         <th>Name</th>
                         <th>Designation</th>
-                        <th>Role</th>
+                        <th>Department</th>
                         <th>Phone</th>
                         <th>Address</th>
                         <th>Status</th>

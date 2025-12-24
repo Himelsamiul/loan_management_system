@@ -23,10 +23,16 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Loan Name</label>
-                    <input type="text" name="loan_name" class="form-control" value="{{ old('loan_name') }}" required>
-                </div>
+<div class="col-md-4">
+    <label class="form-label">Loan Name</label>
+    <input type="text" name="loan_name" class="form-control" value="{{ old('loan_name', $loanName->loan_name ?? '') }}" required>
+
+    {{-- Error message --}}
+    @if($errors->has('loan_name'))
+        <small class="text-danger fw-bold">{{ $errors->first('loan_name') }}</small>
+    @endif
+</div>
+
 
                 <div class="col-md-2">
                     <label class="form-label">Interest (%)</label>

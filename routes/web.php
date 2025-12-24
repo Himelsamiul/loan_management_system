@@ -106,6 +106,9 @@ Route::post('/employees/{employee}/toggle-status', [EmployeeController::class, '
     Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
     Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
     Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    // web.php
+Route::put('admin/roles/{id}/toggle-status', [RoleController::class, 'toggleStatus'])->name('roles.toggleStatus');
+
         // Loan Name
         Route::get('/loan-name', [LoanNameController::class, 'index'])->name('loan.name.index');
         Route::post('/loan-name/store', [LoanNameController::class, 'store'])->name('loan.name.store');

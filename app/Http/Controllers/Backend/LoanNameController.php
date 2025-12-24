@@ -31,17 +31,30 @@ class LoanNameController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'loan_type_id' => 'required|exists:loan_types,id',
-            'loan_name' => 'required|string|max:255',
-            'interest' => 'required|numeric|min:0',
-            'status' => 'required|in:active,inactive'
-        ]);
+{
+    // Case-insensitive duplicate check for same loan type
+    $exists = \App\Models\LoanName::where('loan_type_id', $request->loan_type_id)
+        ->whereRaw('LOWER(loan_name) = ?', [strtolower($request->loan_name)])
+        ->first();
 
-        LoanName::create($request->all());
-        return redirect()->back()->with('success','Loan Name created successfully');
+    if($exists){
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['loan_name' => 'This loan name already exists for the selected loan type!']);
     }
+
+    $request->validate([
+        'loan_type_id' => 'required|exists:loan_types,id',
+        'loan_name' => 'required|string|max:255',
+        'interest' => 'required|numeric|min:0',
+        'status' => 'required|in:active,inactive'
+    ]);
+
+    \App\Models\LoanName::create($request->all());
+
+    return redirect()->back()->with('success','Loan Name created successfully');
+}
+
 
     public function edit($id)
     {
@@ -51,18 +64,33 @@ class LoanNameController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $loanName = LoanName::findOrFail($id);
-        $request->validate([
-            'loan_type_id' => 'required|exists:loan_types,id',
-            'loan_name' => 'required|string|max:255',
-            'interest' => 'required|numeric|min:0',
-            'status' => 'required|in:active,inactive'
-        ]);
+{
+    $loanName = \App\Models\LoanName::findOrFail($id);
 
-        $loanName->update($request->all());
-        return redirect()->route('admin.loan.name.index')->with('success','Loan Name updated successfully');
+    // Duplicate check (ignore current record)
+    $exists = \App\Models\LoanName::where('loan_type_id', $request->loan_type_id)
+        ->whereRaw('LOWER(loan_name) = ?', [strtolower($request->loan_name)])
+        ->where('id', '!=', $id)
+        ->first();
+
+    if($exists){
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['loan_name' => 'This loan name already exists for the selected loan type!']);
     }
+
+    $request->validate([
+        'loan_type_id' => 'required|exists:loan_types,id',
+        'loan_name' => 'required|string|max:255',
+        'interest' => 'required|numeric|min:0',
+        'status' => 'required|in:active,inactive'
+    ]);
+
+    $loanName->update($request->all());
+
+    return redirect()->route('admin.loan.name.index')->with('success','Loan Name updated successfully');
+}
+
 
     public function destroy($id)
     {

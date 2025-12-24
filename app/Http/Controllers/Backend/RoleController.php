@@ -19,22 +19,31 @@ class RoleController extends Controller
     }
 
     // Store new role
-    public function store(Request $request)
-    {
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'gmail' => 'required|email|unique:roles,gmail',
-            'password' => 'required|min:6|confirmed',
-        ]);
-
-        Role::create([
-            'employee_id' => $request->employee_id,
-            'gmail' => $request->gmail,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return redirect()->back()->with('success', 'Role created successfully!');
+    // Store new role
+public function store(Request $request)
+{
+    // Check if employee already has a role
+    $exists = Role::where('employee_id', $request->employee_id)->first();
+    if ($exists) {
+        return redirect()->back()->with('error', 'This employee already has access!');
     }
+
+    // Validation
+    $request->validate([
+        'employee_id' => 'required|exists:employees,id',
+        'gmail' => 'required|email|unique:roles,gmail',
+        'password' => 'required|min:6|confirmed',
+    ]);
+
+    // Create role
+    Role::create([
+        'employee_id' => $request->employee_id,
+        'gmail' => $request->gmail,
+        'password' => Hash::make($request->password),
+    ]);
+
+    return redirect()->back()->with('success', 'Role created successfully!');
+}
 
     // Edit form
     public function edit($id)
@@ -72,4 +81,16 @@ class RoleController extends Controller
         $role->delete();
         return redirect()->back()->with('success', 'Role deleted successfully!');
     }
+
+    // RoleController.php
+public function toggleStatus($id)
+{
+    $role = Role::findOrFail($id);
+    $role->status = $role->status === 'active' ? 'inactive' : 'active';
+    $role->save();
+
+    return redirect()->back()->with('success', 'Employee status updated successfully.');
+}
+
+
 }

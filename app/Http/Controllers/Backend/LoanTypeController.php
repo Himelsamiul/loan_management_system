@@ -32,19 +32,30 @@ class LoanTypeController extends Controller
 
 
     // Store loan type (default active)
-    public function store(Request $request)
-    {
-        $request->validate([
-            'loan_name' => 'required|unique:loan_types,loan_name',
-        ]);
-
-        LoanType::create([
-            'loan_name' => $request->loan_name,
-            'status' => 'active', // always active by default
-        ]);
-
-        return back()->with('success', 'Loan type created successfully!');
+public function store(Request $request)
+{
+    // Case-insensitive duplicate check
+    $exists = \App\Models\LoanType::whereRaw('LOWER(loan_name) = ?', [strtolower($request->loan_name)])->first();
+    if($exists){
+        // Send validation error
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['loan_name' => 'This loan type already exists!']);
     }
+
+    // Normal validation
+    $request->validate([
+        'loan_name' => 'required|string|max:255',
+    ]);
+
+    \App\Models\LoanType::create([
+        'loan_name' => $request->loan_name,
+        'status' => 'active',
+    ]);
+
+    return back()->with('success', 'Loan type created successfully!');
+}
+
 
     // Edit page
     public function edit($id)
@@ -56,6 +67,14 @@ class LoanTypeController extends Controller
     // Update loan type (can change status here)
    public function update(Request $request, $id)
 {
+
+    $exists = \App\Models\LoanType::whereRaw('LOWER(loan_name) = ?', [strtolower($request->loan_name)])->first();
+    if($exists){
+        // Send validation error
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['loan_name' => 'This loan type already exists! Please use a different name.']);
+    }
     $loanType = LoanType::findOrFail($id);
 
     // Validation

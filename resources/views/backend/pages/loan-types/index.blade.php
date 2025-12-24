@@ -25,13 +25,17 @@
             <form action="{{ route('admin.loan.type.store') }}" method="POST" class="row g-3 align-items-end">
                 @csrf
 
-                <div class="col-md-6">
-                    <label class="form-label">Loan Type</label>
-                    <input type="text" name="loan_name" class="form-control" placeholder="Enter loan type" required>
-                    @error('loan_name')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
+<div class="col-md-6">
+    <label class="form-label">Loan Type</label>
+    <input type="text" name="loan_name" class="form-control" placeholder="Enter loan type" value="{{ old('loan_name') }}" required>
+
+    {{-- Error message below input --}}
+    @if($errors->has('loan_name'))
+        <small class="text-danger" style="font-weight:bold;">{{ $errors->first('loan_name') }}</small>
+
+    @endif
+</div>
+
 
                 <input type="hidden" name="status" value="active">
 
