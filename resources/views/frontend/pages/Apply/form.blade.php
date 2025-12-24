@@ -142,7 +142,7 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label>Date of Birth *</label>
-                    <input type="date" name="date_of_birth" class="form-control @error('date_of_birth') is-invalid @enderror" value="{{ old('date_of_birth',$user->date_of_birth) }}"readonly>
+                    <input type="date" name="date_of_birth" class="form-control @error('date_of_birth') is-invalid @enderror" value="{{ old('date_of_birth',$user->date_of_birth) }}" readonly>
                     @error('date_of_birth')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
