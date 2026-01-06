@@ -135,8 +135,9 @@ Route::put('admin/roles/{id}/toggle-status', [RoleController::class, 'toggleStat
         Route::get('/given-loans', [GiveLoanController::class, 'givenLoans'])->name('loan.given');
         Route::get('/loan/details/{id}', [GiveLoanController::class, 'loanDetails'])->name('loan.details');
 
-        Route::post('/loan/pay/{id}', [GiveLoanController::class, 'payInstallment'])
         
+        Route::post('/loan/pay/{id}', [GiveLoanController::class, 'payInstallment'])
+
     ->name('loan.pay');
 
     });
