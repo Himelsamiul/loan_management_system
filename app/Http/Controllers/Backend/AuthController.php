@@ -35,9 +35,7 @@ class AuthController extends Controller
                 return back()->withErrors(['email' => 'Your account is deactivated. Please contact the super admin.']);
             }
 
-            if ($role->trashed() ?? false) { // If soft deleted
-                return back()->withErrors(['email' => 'Your account has been deleted. Please contact the super admin for credentials.']);
-            }
+
 
             if (Hash::check($pass, $role->password)) {
                 session([
