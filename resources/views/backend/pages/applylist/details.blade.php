@@ -76,7 +76,7 @@
                         $totalAmount = $application->loan_amount + ($application->loan_amount * $interestRate / 100);
                         $monthlyInstallment = $application->loan_duration ? $totalAmount / $application->loan_duration : 0;
                     @endphp
-                    <p><strong>Total Amount (Loan + Interest):</strong> {{ number_format($totalAmount,2) }}</p>
+                    <p><strong>Total Amount (Loan + Profit):</strong> {{ number_format($totalAmount,2) }}</p>
                     <p><strong>Monthly Installment:</strong> {{ number_format($monthlyInstallment,2) }}</p>
                 </div>
             </div>

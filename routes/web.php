@@ -95,7 +95,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Show full details of a loan application
 // Show full details of a loan application
-Route::get('/admin/loan-application/{id}/details', [ApplyController::class, 'fullShow'])
+Route::get('/loan-application/{id}/details', [ApplyController::class, 'fullShow'])
      ->name('loan.fullshow');
 
         //employee management
@@ -135,7 +135,7 @@ Route::put('admin/roles/{id}/toggle-status', [RoleController::class, 'toggleStat
         Route::get('/given-loans', [GiveLoanController::class, 'givenLoans'])->name('loan.given');
         Route::get('/loan/details/{id}', [GiveLoanController::class, 'loanDetails'])->name('loan.details');
 
-        
+
         Route::post('/loan/pay/{id}', [GiveLoanController::class, 'payInstallment'])
 
     ->name('loan.pay');

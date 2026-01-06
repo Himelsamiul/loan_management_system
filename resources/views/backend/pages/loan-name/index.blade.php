@@ -35,7 +35,7 @@
 
 
                 <div class="col-md-2">
-                    <label class="form-label">Interest (%)</label>
+                    <label class="form-label">Profit (%)</label>
                     <input type="number" name="interest" class="form-control" min="0" step="0.01" value="{{ old('interest') }}" required>
                 </div>
 
@@ -68,7 +68,7 @@
                         <th>#</th>
                         <th>Loan Type</th>
                         <th>Loan Name</th>
-                        <th>Interest (%)</th>
+                        <th>Profit (%)</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
