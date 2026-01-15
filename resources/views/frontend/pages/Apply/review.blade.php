@@ -72,7 +72,7 @@
             <p><strong>Loan Type:</strong> {{ $loan->loanType->loan_name }}</p>
             <p><strong>Loan Name:</strong> {{ $loan->loan_name }}</p>
             <p><strong>Loan Amount:</strong> {{ number_format($data['loan_amount'],2) }}</p>
-            <p><strong>Interest (%):</strong> {{ $loan->interest }}%</p>
+            <p><strong>Profit (%):</strong> {{ $loan->interest }}%</p>
 
             @php
                 $interestAmount = $data['loan_amount'] * $loan->interest / 100;

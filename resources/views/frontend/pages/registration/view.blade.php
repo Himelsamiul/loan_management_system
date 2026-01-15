@@ -31,7 +31,7 @@
                     <th>Loan Type</th>
                     <th>Loan Name</th>
                     <th>Amount</th>
-                    <th>Interest (%)</th>
+                    <th>Profit (%)</th>
                     <th>Total Amount</th>
                     <th>Duration (months)</th>
                     <th>Monthly Installment</th>

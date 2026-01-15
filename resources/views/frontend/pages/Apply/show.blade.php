@@ -12,7 +12,7 @@
                 <th>SL</th>
                 <th>Loan Type</th>
                 <th>Loan Name</th>
-                <th>Interest (%)</th>
+                <th>Profit (%)</th>
                 <th>Status</th>
                 <th>Apply</th>
             </tr>

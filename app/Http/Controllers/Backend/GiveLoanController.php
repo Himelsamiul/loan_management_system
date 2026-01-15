@@ -89,7 +89,7 @@ public function loanDetails($id)
 
     $loanStart = $loan->start_date_loan ? Carbon::parse($loan->start_date_loan) : now();
     $graceDays = 5;
-    $finePercentPerDay = 2;
+    $finePercentPerDay = 0.2;
     $fineMaxDays = 10;
 
     $installments = [];
